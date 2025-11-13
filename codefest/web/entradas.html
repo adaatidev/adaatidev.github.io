@@ -2,25 +2,61 @@
 <html>
   <header>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/estilos.css">
     <title>Entradas CODEFEST</title>
     <h1>CodeFest 2025</h1>
     <h2>Donde la Música y el Código se encuentran</h2>
   </header>
   <nav>
     <ul>
-      <li><a href=index.html>Inicio</a></li>
-      <li><a href="cartel.html">Cartel</a></li>
-      <li><a href="localizacion.html">Localización</a></li>
-      <li>Entradas</li>
+      <li><a href="../index.html">☆ Inicio</a></li>
+      <li><a href="cartel.html">☆ Cartel</a></li>
+      <li><a href="localizacion.html">☆ Localización</a></li>
+      <li>★ Entradas</li>
+      <li><a href="../../index.html"> <~ Página principal ☆</a></li> 
     </ul>
   </nav>
   <main>
     <section>
-      <form action="https://www.w3schools.com/action_page.php">
-        <p>Datos personales</p>
-        <label for text="nombreyapellideos"></label>
-        <input type="text">
-        <br>
+      <form action="https://www.w3schools.com/action_page.php" target="post">
+        <fieldset>
+          <legend>Datos personales</legend>
+          <label></label>
+          <input type="text" placeholder="Nombre y apellidos">
+          <br>
+          <label></label>
+          <input type="email" placeholder="Correo electrónico" required>
+        </fieldset>
+        <fieldset>
+          <legend>Tipo de entrada</legend>
+          <input type="radio" id="tipo_entrada" name="tipo_entrada" value="tipo_entrada">
+          <label for="tipo_entrada">Abono General (3 Días)</label>
+          <br>
+          <input type="radio" id="tipo_entrada" name="tipo_entrada" value="tipo_entrada">
+          <label for="tipo_entrada">Abono VIP (3 Días)</label>
+          <br>
+          <input type="radio" id="tipo_entrada" name="tipo_entrada" value="tipo_entrada">
+          <label for="tipo_entrada">Entrada de día</label>
+        </fieldset>
+        <fieldset>
+          <legend>Extras</legend>
+          <input type="checkbox" id="camping">
+          <label for="camping">Camping</label>
+          <br>
+          <input type="checkbox" id="pack">
+          <label for="pack">Pack Merchandising</label>
+          <br>
+          <input type="checkbox" id="acceso">
+          <label for="acceso">Acceso a Talleres Tech</label>
+        </fieldset>
+        <fieldset>
+          <legend>Día (Solo si es Entrada de Día)</legend>
+          <select>
+            <option>Viernes</option>
+            <option>Sábado</option>
+            <option>Domingo</option>
+          </select>
+        </fieldset>
         <button type="submit">Enviar</button>
       </form>
     </section>
