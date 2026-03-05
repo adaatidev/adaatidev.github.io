@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html lang = es>
+<head>
+  <meta charset="UTF-8">
+  <title>Ejercicio2</title>
+</head>
+<body>
+  <h1>Ejercicio 2</h1>
+  <h3 id="resultado">Par o impar</h3>
+  <input type="number" id="num1" placeholder="Introduzca un número">
+  <button id="boton">Par/impar</button>
+  <br><hr><br>
+  <script>
+    // Apartado 1
+    let numero = documet.getElementById("num1");
+    let h3 = document.getElementById("resultado");
+    numero.addEventListener("keyup", function(){
+      if(numero.value%2==0){
+        h3.innerHTML="Par";
+      } else {
+        h3.innerHTML="Impar";
+      }
+    });
+
+    // Apartado 2
+    let votacion="No puedes votar aún";
+    let inputEdad = document.createElement('input');
+    inputEdad.placeholder="Dime tu edad";
+    inputEdad.addEventListener("keyup", function(){
+if (inputEdad.value >= 18) {
+  votacion="Sí puedes votar"
+}
+    });
+    document.body.appendChild(inputEdad);
+    let h2Votacion = document.createElement("h2");
+    h2Votacion.innerHTML = votacion;
+    document.body.appendChild(h2Votacion);
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ejercicio1</title>
+</head>
+<body>
+  <div id="mensaje"></div>
+  <input type = "text" id="nombre">
+  <input type = "number" id="edad" min = "0" max = "120">
+  <button id = "boton">Enviar</button>
+  <br>
+  <br>
+  <br>
+  <input type = "number" id="numero1" placeholder="Dame un número">
+  <input type = "number" id="numero2" placeholder="Dame un número">
+  <span style="margin:13px" id="resultado"></span>
+  <button id = "suma">+</button>
+  <button id = "resta">-</button>
+  <button id = "multiplicación">*</button>
+  <button id = "división">/</button>
+  <script>
+    let number = document.getElementById("nombre");
+    let edad = document.getElementById("edad");
+    let mensaje = document.getElementById("mensaje");
+    let boton = document.getElementById("boton");
+    boton.addEventListener("clic", function() {
+      mensaje.innerHTML = 'Hola, soy ${nombre.value} y tengo ${edad.value} años. ';
+    });
+
+    let num1.getElementById("numero1");
+    let num2.getElementById("numero2");
+    let suma = document.getElementById("suma");
+    suma.addEventListener("click", function() {
+      resultado.textContent = parseFloat(num1.value) + parseFloat(num2.value);
+    })
+
+    let resta = document.getElementById("resta");
+    suma.addEventListener("click", function() {
+      resultado.textContent = parseFloat(num1.value) - parseFloat(num2.value);
+    })
+
+    let multiplicación = document.getElementById("multiplicacion");
+    suma.addEventListener("click", function() {
+      resultado.textContent = parseFloat(num1.value) * parseFloat(num2.value);
+    })
+
+    let division = document.getElementById("division");
+    suma.addEventListener("click", function() {
+      resultado.textContent = parseFloat(num1.value) / parseFloat(num2.value);
+    })
+  </script>
+</body>
+</html>
