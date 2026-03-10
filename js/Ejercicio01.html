@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 01</title>
+  </head>
+  <body>
+    <input type="text" id="nombre" placeholder="Introduzca su nombre">
+    <input type="number" id="edad" placeholder="Introduzca su edad">
+    <button id = "boton">Enviar</button>
+    <p id="mensaje"></p>
+
+    <input type ="number" id="numero1" placeholder="Introduzca un número">
+    <input type ="number" id="numero2" placeholder="Introduzca un número">
+    <button id = "suma">+</button>
+    <button id = "resta">-</button>
+    <button id = "multiplicación">*</button>
+    <button id = "división">/</button>
+    <p id="resultado"></p>
+    <script>
+        document.getElementById("boton").addEventListener("click", function(){
+            let nombre = document.getElementById("nombre").value;
+            let edad = document.getElementById("edad").value;
+            document.getElementById("mensaje").innerHTML = `Mi nombre es ${nombre}, y tengo ${edad} años.`;
+        });
+
+        document.getElementById("sumar").addEventListener("click", function(){
+            const numero1 = document.getElementById("numero1").value;
+            const numero2 = document.getElementById("numero2").value;
+        });
+    </script>
+  </body>
+</html>
