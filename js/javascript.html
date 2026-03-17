@@ -48,7 +48,7 @@
 
     <p id="resultado"></p> -->
 
-    <h2>Ejemplo 1: Consulta de Usuarios</h2>
+    <!-- <h2>Ejemplo 1: Consulta de Usuarios</h2>
     <button id="btnAccion">Pulsa y observa la consola</button>
 
     <div class="contenedor">
@@ -66,8 +66,27 @@
             </thead>
             <tbody id="cuerpoTabla"></tbody>
         </table>
+    </div> -->
+
+    <h1>Adivina el número</h1>
+    <div>
+        <p> Puntos totales: <span id="puntosTotales"></span></p>
+        <p>Puntos en cartera: <span id="cartera">10</span></p>
     </div>
 
+    <input type="number" id="inputNumero" placeholder="Introduce un número">
+    <button id="botonAdivinar">Adivinar</button>
+
+    <p id="mensaje"></p>
+
+    <button id="botonReiniciar">Jugar de nuevo</button>
+
+    <div id="stats">
+        <h3>Estadísticas</h3>
+        <p>Partidas jugadas: <span id="partidas">0</span></p>
+        <p>Porcentaje de acierto: <span id="porcentaje">0%</span></p>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>

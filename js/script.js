@@ -429,3 +429,26 @@ document.getElementById("btnAccion").addEventListener("click", function() {
         </tr>
     `;
 }); */
+
+// EJERCICIOS 5: JAVASCRIPT (ADIVINA EL NÚMERO)
+let numeroSecreto;
+let puntosTotales = 0;
+let cartera = 0;
+let partidasJugadas = 0;
+let totalAciertos = 0;
+
+const input = document.getElementById("inputNumero");
+const botonAdivinar = document.getElementById("botonAdivinar");
+const botonReiniciar = document.getElementById("botonReiniciar");
+const msg = document.getElementById("mensaje");
+
+botonAdivinar.addEventListener ("click", function() {
+    if (input.value === numeroSecreto) {
+        cartera++;
+        totalAciertos++;
+        partidasJugadas++;
+    } else {
+        cartera--;
+        partidasJugadas++;
+    }
+});
