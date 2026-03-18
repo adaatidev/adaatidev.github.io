@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 7</title>
+</head>
+<body>
+    <input type="text" id="input">
+    <button id="boton">Añadir</button>
+    <ul id="lista"></ul>
+
+    <script>
+        const input = document.getElementById("input");
+        const boton = document.getElementById("boton");
+        const lista = document.getElementById("lista");
+
+        boton.addEventListener("click", function() {
+            const texto = input.value;
+            if (texto.trim() === "") return;
+
+            const nuevoLi = document.createElement("li");
+            nuevoLi.textContent = texto + " ";
+
+            const botonX = document.createElement("button");
+            botonX.textContent = "X";
+
+            const botonSubir = document.createElement("button");
+            botonSubir.textContent = "↑";
+            botonSubir.onclick = function() {
+            const anterior = nuevoLi.previousElementSibling;
+                if (anterior) {
+                    lista.insertBefore(nuevoLi, anterior);
+                }
+            };
+
+            const botonBajar = document.createElement("button");
+            botonBajar.textContent = "↓";
+            botonBajar.onclick = function() {
+                const siguiente = nuevoLi.nextElementSibling;
+                    if (siguiente) {
+                        lista.insertBefore(siguiente, nuevoLi);
+                    }
+            };
+
+            botonX.addEventListener("click", function() {
+                nuevoLi.remove();
+            });
+
+            nuevoLi.appendChild(botonSubir);
+            nuevoLi.appendChild(botonBajar);
+            nuevoLi.appendChild(botonX);
+            lista.appendChild(nuevoLi);
+
+            input.value = "";
+        });
+    </script>
+</body>
+</html>

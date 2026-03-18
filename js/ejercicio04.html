@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 04</title>
+</head>
+<body>
+    <script>
+        let array = [1, 2, 3, 4, 5];
+        array.push(6);
+        array.shift();
+        for (let i = 0; i < array.length; i++) {
+            console.log(array[i]);
+        }
+
+        /*  */
+
+        function devuelveMayor(array) {
+            let mayor = 0;
+            for (let i = 0; i < array.length; i++) {
+                if (mayor < array[i]) {
+                    mayor = array[i];
+                }  
+            }
+        return mayor;
+        }
+
+        persona = {nombre: "Ada", edad: "19", ciudad:"Sevilla"};
+        console.log(persona);
+        persona.ocupacion = "Desarrolladora";
+        delete persona.ciudad;
+        console.log("Objeto actualizado:", persona);
+
+        function toString(persona) {
+            let resultado = "";
+            for (let clave in obj) {
+            resultado += `${clave}: ${obj[clave]}, `;
+        }
+        return resultado;
+        }
+    </script>
+</body>
+</html>

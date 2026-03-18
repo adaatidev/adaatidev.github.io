@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 6: JavaScript</title>
+</head>
+<body>
+
+    <h2>Formulario de Registro</h2>
+    <form id="registroForm">
+        <input type="text" id="nombre" placeholder="Nombre" required><br><br>
+        <input type="text" id="apellidos" placeholder="Apellidos" required><br><br>
+        <input type="number" id="anioNacimiento" placeholder="Año de nacimiento" required><br><br>
+        
+        <button type="button" onclick="procesarFormulario()">Enviar</button>
+    </form>
+
+    <div id="mensajeError" class="error"></div>
+    <div id="resultado"></div>
+    <div id="media"></div>
+
+    <script>
+        let edadesRegistradas = [];
+
+        function procesarFormulario() {
+            const anioActual = new Date().getFullYear(); // Punto 3
+            const anioNacimiento = parseInt(document.getElementById('anioNacimiento').value);
+            const resultadoDiv = document.getElementById('resultado');
+            const errorDiv = document.getElementById('mensajeError');
+            const mediaDiv = document.getElementById('media');
+
+            const edad = anioActual - anioNacimiento;
+
+            if (isNaN(anioNacimiento) || edad < 0 || edad > 120) {
+                errorDiv.innerText = "Error: Introduce un año válido (Edad entre 0 y 120).";
+                return;
+            }
+
+            resultadoDiv.innerText = `Edad calculada: ${edad} años.`;
+            
+            if (edad > 18 && edad < 65) {
+                resultadoDiv.className = "valido";
+            } else {
+                resultadoDiv.className = "invalido";
+            }
+
+            edadesRegistradas.push(edad);
+            const suma = edadesRegistradas.reduce((a, b) => a + b, 0);
+            const promedio = (suma / edadesRegistradas.length).toFixed(2);
+            mediaDiv.innerText = `La media de edad actual es: ${promedio}`;
+        }
+
+        // 5. Limpiar al hacer focus (Punto 6)
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focusin', () => {
+                document.getElementById('resultado').innerText = "";
+                document.getElementById('mensajeError').innerText = "";
+            });
+        });
+    </script>
+
+</body>
+</html>

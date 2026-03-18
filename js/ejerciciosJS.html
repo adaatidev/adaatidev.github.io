@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicios JS</title>
+</head>
+<body>
+    <div>
+        <h1>Calculadora</h1>
+        <input type="number" id="num1">
+        <input type="number" id="num2">
+        <button id="suma">+</button>
+        <button id="resta">-</button>
+        <button id="mult">*</button>
+        <button id="divi">/</button>
+        <p id="resultado"></p>
+    </div>
+    <script>
+        const input1 = document.getElementById("num1");
+        const input2 = document.getElementById("num2");
+        const parrafo = document.getElementById("resultado");
+
+        function obtenerValores() {
+            const n1 = parseInt(input1.value) || 0;
+            const n2 = parseInt(input2.value) || 0;
+        return { n1: n1, n2: n2 }; 
+        }
+
+        document.getElementById("suma").addEventListener("click", function() {
+            const valores = obtenerValores();
+            parrafo.textContent = "Resultado: " + (valores.n1 + valores.n2);
+        });
+
+        document.getElementById("resta").addEventListener("click", function() {
+            const valores = obtenerValores();
+            parrafo.textContent = "Resultado: " + (valores.n1 - valores.n2);
+        });
+
+        document.getElementById("mult").addEventListener("click", function() {
+            const valores = obtenerValores();
+            parrafo.textContent = "Resultado: " + (valores.n1 * valores.n2);
+        });
+
+        document.getElementById("divi").addEventListener("click", function() {
+            const valores = obtenerValores();
+            if (valores.n2 === 0) {
+                parrafo.textContent = "Resultado: No se puede dividir por cero";
+            } else {
+                parrafo.textContent = "Resultado: " + (valores.n1 / valores.n2);
+            }
+        });
+    </script>
+</body>
+</html>

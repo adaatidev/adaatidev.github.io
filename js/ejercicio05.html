@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 5</title>
+</head>
+<body>
+    <div id="juego">
+        <h1>Adivina el Número (1-100)</h1>
+        <p>Puntos totales: <span id="puntos-totales">0</span></p>
+        <p>Cartera actual: <span id="cartera">10</span></p>
+    
+        <input type="number" id="entrada-usuario" placeholder="Introduce un número">
+        <button id="btn-comprobar">Probar suerte</button>
+    
+        <p id="mensaje"></p>
+        <button id="btn-reiniciar" style="display: none;">Reiniciar Partida</button>
+    </div>
+    <script>
+        let numeroSecreto = generarNumero();
+        let puntosTotales = 0;
+        let cartera = 10;
+        let partidasJugadas = 0;
+        let aciertos = 0;
+
+        const input = document.getElementById("entrada-usuario");
+        const btnComprobar = document.getElementById("btn-comprobar");
+        const btnReiniciar = document.getElementById("btn-reiniciar");
+        const txtMensaje = document.getElementById("mensaje");
+
+        function generarNumero() {
+            return Math.floor(Math.random() * 100) + 1;
+        }
+
+        function actualizarPantalla() {
+            document.getElementById("puntos-totales").textContent = puntosTotales;
+            document.getElementById("cartera").textContent = cartera;
+        }
+
+        btnComprobar.onclick = function() {
+            const intento = parseInt(input.value);
+    
+            if (isNaN(intento)) return;
+
+            if (intento === numeroSecreto) {
+                puntosTotales += cartera;
+                aciertos++;
+                partidasJugadas++;
+                txtMensaje.textContent = `¡Correcto! Has ganado ${cartera} puntos.`;
+                finalizarRonda();
+            } else {
+                cartera--;
+                if (intento < numeroSecreto) {
+                    txtMensaje.textContent = "Más alto...";
+                } else {
+                    txtMensaje.textContent = "Más bajo...";
+                }
+        
+                if (cartera <= 0) {
+                    partidasJugadas++;
+                    txtMensaje.textContent = `Game Over. El número era ${numeroSecreto}.`;
+                    finalizarRonda();
+                }
+            }
+            actualizarPantalla();
+            input.value = "";
+        };
+
+        function finalizarRonda() {
+            btnComprobar.disabled = true;
+            btnReiniciar.style.display = "block";
+    
+            const porcentaje = ((aciertos / partidasJugadas) * 100).toFixed(1);
+            console.log(`Estadísticas: ${aciertos}/${partidasJugadas} (${porcentaje}%)`);
+        }
+
+        btnReiniciar.onclick = function() {
+            numeroSecreto = generarNumero();
+            cartera = 10;
+            btnComprobar.disabled = false;
+            btnReiniciar.style.display = "none";
+            txtMensaje.textContent = "";
+            actualizarPantalla();
+        };
+    </script>
+</body>
+</html>
