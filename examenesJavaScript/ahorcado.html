@@ -12,18 +12,29 @@
     <button id="boton">Probar letra</button>
     <script>
         // Array con las palabras del juego (variable global)
+        const arrayPalabras = [gwen, soraka, lulu, nami, leona, seraphine];
 
         // El array del usuario que contiene las letras que ha acertado (variable global)
-
+        const arrayUsuario = [];
+        const palabraAdivinar = "";
+        const mensaje = document.getElementById("mensaje");
         /* 
         *   Función que recibe el array con las palabras, tiene un random que elije una palabra aleatoria del array y
         *   establece la palabra elegida como la palabra que debe averiguar el usuario
         */  
+        function eligePalabra(arrayPalabras) {
+            palabraAdivinar = Math.floor(Math.random() * arrayPalabras.length);
+        }
 
         /*
         *   Función que recibe la palabra a averiguar y devuelve un array con tantos guiones bajos como letras tenga
         *   la palabra a averiguar (esta función es la que inicializa el tablero)
         */
+        function inicializaTablero(palabraAdivinar) {
+            for (let i = 0; i < palabraAdivinar.length; i++) {
+                mensaje.textContent += "_";
+            }
+        }
 
         /*
         *   Función que recibe el input de texto y le cambia el valor a "" para que se quede vacío y facilite la
@@ -47,6 +58,8 @@
         *   Función que reinicia el juego llamando a la función que elije una palabra con un random y a la función
         *   que inicializaba el tablero con todos los guiones dependiendo de la palabra
         */
+        eligePalabra(arrayPalabras);
+        inicializaTablero(palabraAdivinar);
 
     </script>
 </body>
