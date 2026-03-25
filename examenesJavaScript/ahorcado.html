@@ -8,66 +8,96 @@
 <body>
     <h1>El Juego del Ahorcado</h1>
     <p id="mensaje"></p>
-    <input type="text" maxlength="1" id="inputLetra" placeholder="Introduzca una letra">
+    
+    <input type="text" maxlength="1" id="inputLetra" placeholder="A">
     <button id="boton">Probar letra</button>
+
     <script>
-        // Array con las palabras del juego (variable global)
-        const arrayPalabras = [gwen, soraka, lulu, nami, leona, seraphine];
+        // Array con las palabras a elegir
+        const arrayPalabras = ["gwen", "soraka", "lulu", "nami", "leona", "seraphine"];
+        
+        // Variable que almacena la palabra elegida
+        let palabraAdivinar = "";
 
-        // El array del usuario que contiene las letras que ha acertado (variable global)
-        const arrayUsuario = [];
-        const palabraAdivinar = "";
-        const mensaje = document.getElementById("mensaje");
-        const input = document.getElementById("inputLetra");
+        // Array para las letras adivinadas (inputs del usuario)
+        let arrayUsuario = []; 
 
-        /* 
-        *   Función que recibe el array con las palabras, tiene un random que elije una palabra aleatoria del array y
-        *   establece la palabra elegida como la palabra que debe averiguar el usuario
-        */  
-        function eligePalabra(arrayPalabras) {
-            palabraAdivinar = Math.floor(Math.random() * arrayPalabras.length);
+        const mensajeElement = document.getElementById("mensaje");
+        const inputElement = document.getElementById("inputLetra");
+        const botonElement = document.getElementById("boton");
+
+        // Funcion que elige una palabra aleatoria del array de palabras, recibe el array de las palabras y devuelve la palabra
+        function eligePalabra(palabras) {
+            const indiceAleatorio = Math.floor(Math.random() * palabras.length);
+            return palabras[indiceAleatorio].toLowerCase();
         }
 
-        /*
-        *   Función que recibe la palabra a averiguar y devuelve un array con tantos guiones bajos como letras tenga
-        *   la palabra a averiguar (esta función es la que inicializa el tablero)
-        */
-        function inicializaTablero(palabraAdivinar) {
+        // Función que inicia el tablero a guiones bajos, recibe la tabla y devuelve los guiones impreso (llama a otra función
+        function inicializaTablero(palabra) {
+            arrayUsuario = Array(palabra.length).fill("_");
+            dibujaTablero();
+        }
+
+        // Función que modifica el mensaje y dibuja el tablero
+        function dibujaTablero() {
+            mensajeElement.textContent = arrayUsuario.join(" ");
+        }
+
+        // Función que vacía el input, recibe el input
+        function vaciaInput(input) {
+            input.value = "";
+            input.focus();
+        }
+
+        /**
+         * Comprueba si la letra existe y actualiza el array del usuario.
+         * @return {boolean} true si la letra estaba en la palabra.
+         */
+        function procesarIntento(letra) {
+            let acierto = false;
             for (let i = 0; i < palabraAdivinar.length; i++) {
-                mensaje.textContent += "_";
+                if (palabraAdivinar[i] === letra) {
+                    arrayUsuario[i] = letra;
+                    acierto = true;
+                }
+            }
+            return acierto;
+        }
+
+        // Función que comprueba si el usuario ha ganado
+        function comprobarVictoria() {
+            return !arrayUsuario.includes("_");
+        }
+
+        // Función que muestra que el usuario ha ganado y la palabra que era
+        function finalizarJuego() {
+            alert("¡Felicidades! Has ganado. La palabra era: " + palabraAdivinar);
+        }
+
+        // Función que verifica el turno del usuario, comprueba que el input no esté vacío, si no lo está ejecuta las funciones necesarias para que el juego siga
+        function ejecutarTurno() {
+            const letra = inputElement.value.toLowerCase();
+            
+            if (letra === "") return;
+
+            procesarIntento(letra);
+            dibujaTablero();
+            vaciaInput(inputElement);
+
+            if (comprobarVictoria()) {
+                finalizarJuego();
             }
         }
 
-        /*
-        *   Función que recibe el input de texto y le cambia el valor a "" para que se quede vacío y facilite la
-        *   siguiente entrada
-        */
-        function vaciaInput(input){
-            input.textContent="";
+        // Función que inicializa el juego eligiendo una palabra al azar
+        function iniciarJuego() {
+            palabraAdivinar = eligePalabra(arrayPalabras);
+            inicializaTablero(palabraAdivinar);
+
+            botonElement.addEventListener("click", ejecutarTurno);
         }
 
-        /*
-        *   Función que recibe la letra del input y comprueba que exista en el array (boolean)
-        */
-       function compruebaLetra(input, ) {
-            
-       }
-
-        /*
-        *   Función que cambia los guiones del array del usuario por letras si ha acertado (depende de la anterior función)
-        */
-
-        /*
-        *   Función que recibe el array del usuario, recorre las posiciones y si no hay ningún guión bajo devuelve el
-        *   mensaje de que ha ganado (boolean)
-        */
-
-        /*
-        *   Función que reinicia el juego llamando a la función que elije una palabra con un random y a la función
-        *   que inicializaba el tablero con todos los guiones dependiendo de la palabra
-        */
-        eligePalabra(arrayPalabras);
-        inicializaTablero(palabraAdivinar);
+        iniciarJuego();
 
     </script>
 </body>
