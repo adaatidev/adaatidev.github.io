@@ -18,6 +18,8 @@
         const arrayUsuario = [];
         const palabraAdivinar = "";
         const mensaje = document.getElementById("mensaje");
+        const input = document.getElementById("inputLetra");
+
         /* 
         *   Función que recibe el array con las palabras, tiene un random que elije una palabra aleatoria del array y
         *   establece la palabra elegida como la palabra que debe averiguar el usuario
@@ -40,10 +42,16 @@
         *   Función que recibe el input de texto y le cambia el valor a "" para que se quede vacío y facilite la
         *   siguiente entrada
         */
+        function vaciaInput(input){
+            input.textContent="";
+        }
 
         /*
         *   Función que recibe la letra del input y comprueba que exista en el array (boolean)
         */
+       function compruebaLetra(input, ) {
+            
+       }
 
         /*
         *   Función que cambia los guiones del array del usuario por letras si ha acertado (depende de la anterior función)
