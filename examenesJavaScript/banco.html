@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Movimientos Bancarios</title>
+</head>
+<body>
+    <h2>Gestor de Movimientos Bancarios</h2>
+    <div>
+        <input type="text" id="concepto" placeholder="Concepto">
+        <input type="number" id="cantidad" placeholder="Importe">
+        <br><br>
+        <input type="radio" name="tipo" id="radioIngreso" value="ingreso" checked> Ingreso
+        <input type="radio" name="tipo" id="radioGasto" value="gasto"> Gasto
+        <br><br>
+        <button onclick="añadir()">Guardar Movimiento</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Concepto</th>
+                <th>Ingreso</th>
+                <th>Gasto</th>
+                <th>Saldo Acumulado</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo"></tbody>
+    </table>
+<script>
+        let movimientos = [];
+
+        function añadir() {
+            let con = document.getElementById("concepto").value;
+            let can = document.getElementById("cantidad").value;
+            let tipo = "";
+            
+            // Comprueba el tipo
+            if (document.getElementById("radioIngreso").checked) {
+                tipo = "ingreso";
+            } else {
+                tipo = "gasto";
+            }
+
+            if (con == "" || can == "") {
+                alert("Rellena los datos");
+                return;
+            }
+
+            // Guarda el objeto
+            let nuevo = { concepto: con, importe: Number(can), tipo: tipo };
+            movimientos.push(nuevo);
+
+            actualizar();
+        }
+
+        function actualizar() {
+            let listaHTML = "";
+            let saldo = 0;
+
+            for (let i = 0; i < movimientos.length; i++) {
+                let m = movimientos[i];
+                let colIngreso = "-";
+                let colGasto = "-";
+
+                if (m.tipo == "ingreso") {
+                    colIngreso = m.importe;
+                    saldo = saldo + m.importe;
+                } else {
+                    colGasto = m.importe;
+                    saldo = saldo - m.importe;
+                }
+
+                // Color del saldo
+                let claseColor = "negro";
+                if (saldo < 0) { claseColor = "rojo"; }
+
+                listaHTML += "<tr>" +
+                    "<td>" + m.concepto + "</td>" +
+                    "<td>" + colIngreso + "</td>" +
+                    "<td>" + colGasto + "</td>" +
+                    "<td class='" + claseColor + "'>" + saldo + "€</td>" +
+                    "<td><button onclick='eliminar(" + i + ")'>Borrar</button></td>" +
+                "</tr>";
+            }
+            document.getElementById("cuerpo").innerHTML = listaHTML;
+        }
+
+        function eliminar(posicionABorrar) {
+            let listaNueva = [];
+
+            // Recorremos la lista vieja
+            for (let i = 0; i < movimientos.length; i++) {
+                // Si la posición NO es la que queremos borrar, la pasamos a la nueva
+                if (i != posicionABorrar) {
+                    listaNueva.push(movimientos[i]);
+                }
+            }
+
+            // Ahora nuestra lista de movimientos es la nueva (que no tiene el borrado)
+            movimientos = listaNueva;
+            
+            actualizar();
+        }
+    </script>
+</body>
+</html>

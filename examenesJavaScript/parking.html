@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control de Acceso a Parking</title>
+    <style>
+        .ocupado { background-color: red; color: white; }
+        .btn-verde { background-color: green; color: white; border: none; padding: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Control de Parking</h2>
+    <input type="text" id="matricula" placeholder="Matrícula">
+    <input type="number" id="n_plaza" placeholder="Plaza (1-20)">
+    <button onclick="aparcar()">Aparcar Vehículo</button>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nº Plaza</th>
+                <th>Matrícula</th>
+                <th>Salida</th>
+            </tr>
+        </thead>
+        <tbody id="lista_plazas">
+            </tbody>
+        </table>
+    <script>
+        // CREAMOS EL ARRAY: 20 posiciones vacías (del 0 al 19)
+        let parking = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+
+        // FUNCIÓN PARA DIBUJAR LA TABLA
+        function actualizarTabla() {
+            let contenido = "";
+            
+            for (let i = 0; i < 20; i++) {
+                let numeroPlaza = i + 1;
+                let coche = parking[i];
+                let claseCSS = "";
+                let botonSalida = "";
+
+                // Si hay un coche, ponemos fondo rojo y el botón "L"
+                if (coche != "") {
+                    claseCSS = "class='ocupado'";
+                    botonSalida = "<button class='btn-verde' onclick='liberar(" + i + ")'>L</button>";
+                }
+
+                // Vamos sumando filas al contenido
+                contenido += "<tr " + claseCSS + ">" +
+                                "<td>" + numeroPlaza + "</td>" +
+                                "<td>" + (coche == "" ? "-" : coche) + "</td>" +
+                                "<td>" + botonSalida + "</td>" +
+                             "</tr>";
+            }
+            
+            // Metemos todo el texto generado dentro de la tabla
+            document.getElementById("lista_plazas").innerHTML = contenido;
+        }
+
+        // FUNCIÓN PARA APARCAR
+        function aparcar() {
+            let m = document.getElementById("matricula").value;
+            let p = document.getElementById("n_plaza").value;
+            let indice = p - 1; // El array empieza en 0
+
+            // Validaciones sencillas
+            if (m == "") {
+                alert("Escribe la matrícula");
+            } else if (p < 1 || p > 20) {
+                alert("Número de plaza incorrecto (1-20)");
+            } else if (parking[indice] != "") {
+                alert("¡Plaza ya ocupada!");
+            } else {
+                // Si todo está bien, guardamos
+                parking[indice] = m;
+                actualizarTabla();
+                // Limpiamos los campos
+                document.getElementById("matricula").value = "";
+                document.getElementById("n_plaza").value = "";
+            }
+        }
+
+        // FUNCIÓN PARA LIBERAR
+        function liberar(posicion) {
+            parking[posicion] = ""; // Borramos la matrícula en esa posición
+            actualizarTabla();      // Refrescamos la tabla
+        }
+
+        // Ejecutar al cargar la página para que se vea la tabla inicial
+        actualizarTabla();
+
+    </script>
+</html>

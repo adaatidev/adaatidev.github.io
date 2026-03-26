@@ -8,7 +8,6 @@
 <body>
     <h1>El Juego del Ahorcado</h1>
     <p id="mensaje"></p>
-    
     <input type="text" maxlength="1" id="inputLetra" placeholder="A">
     <button id="boton">Probar letra</button>
 
@@ -32,7 +31,7 @@
             return palabras[indiceAleatorio].toLowerCase();
         }
 
-        // Función que inicia el tablero a guiones bajos, recibe la tabla y devuelve los guiones impreso (llama a otra función
+        // Función que inicia el tablero a guiones bajos, recibe la palabra y devuelve los guiones impreso (llamando a otra función)
         function inicializaTablero(palabra) {
             arrayUsuario = Array(palabra.length).fill("_");
             dibujaTablero();
