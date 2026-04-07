@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envío</title>
+</head>
+<body>
+    <script>
+        // 1. Definimos el objeto (Dato original)
+        const nuevoPost = {
+            title: "Mi primera publicación",
+            body: "Hola clase, estoy enviando un JSON",
+            userId: 1
+        };
+        // 2. Enviamos el JSON al servidor de pruebas
+        fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            body: serializar(nuevoPost), // SERIALIZACIÓN
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+        // DESERIALIZACIÓN de la respuesta
+        .then(response => response.json()) 
+        .then(json => console.log("Servidor responde:", json));
+
+        function serializar(nuevoPost) {
+            console.log(nuevoPost);
+            const serializado = JSON.stringify(nuevoPost);
+            console.log(serializado);
+            return serializado;
+        }
+    </script>
+</body>
+</html>
