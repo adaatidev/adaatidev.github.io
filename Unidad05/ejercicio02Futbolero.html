@@ -6,16 +6,39 @@
     <title>Ejercicio 2: Futbolero</title>
 </head>
 <body>
-    <h1>Ejercicio 2: Futbolero</h1>
-    <h2>Premier League</h2>
-    <h3>Chelsea</h3>
+    <select id="listaEquipos"></select>
+    <div id="infoEquipo"></div>
     <script>
-        async function obtenerUsuario() {
-            const respuesta = await
-            fetch('https://thesportsdb.com/api/v1/json/3/searchteams.php?t=Chelsea');
-            const usuario = await respuesta.json();
-            console.log(usuario.name);
-        }
+            const lista = document.getElementById("listaEquipos");
+            const info = document.getElementById("infoEquipo");
+            let listaEquipos = [];
+
+            document.addEventListener("DOMContentLoaded", function(){
+                obtenerInfo();
+            });
+            
+            async function obtenerInfo() {
+                const respuesta = await fetch('https://www.thesportsdb.com/api/v1/json/123/search_all_teams.php?l=English_Premier_League');
+                const datos = await respuesta.json();
+                listaEquipos = datos.teams;
+
+                listaEquipos.forEach(equipos => {
+                    lista.innerHTML += `
+                    <option value=${equipos.idTeam}>${equipos.strTeam}</option>`;
+                });
+
+                document.getElementById("listaEquipos").addEventListener("change", function(event){
+                const idSeleccionado = event.target.value;
+
+                const equipoSeleccionado = listaEquipos.find(equipo => equipo.idTeam === idSeleccionado);
+
+                info.innerHTML = `
+                <h2>${equipoSeleccionado.strTeam}</h2>
+                <p><strong>Formed Year:</strong> ${equipoSeleccionado.intFormedYear}</p>
+                <p><strong>Stadium:</strong> ${equipoSeleccionado.strStadium}</p>
+                <p><strong>Description:</strong> ${equipoSeleccionado.strDescriptionEN}</p>`;
+                });
+            }
     </script>
 </body>
 </html>

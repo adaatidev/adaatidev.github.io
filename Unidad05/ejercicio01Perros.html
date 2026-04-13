@@ -6,22 +6,53 @@
     <title>Ejercicio 1: Perros</title>
 </head>
 <body>
-    <h1>Ejercicio 1: Perros</h1>
-    <button id="btnAleatorio">Botón aleatorio</button>
-    <select id="selector">
-        <option id="opcion"></option>
-    </select>
-    <img id="imagen" src="">
+    <body>
+    <h2>Mundo Canino 🐾</h2>
+    <div>
+        <button id="btnRandom" class="btn btn-primary">Aleatorio</button>
+        <select id="breedSelector">
+            <option value="">Selecciona una raza...</option>
+        </select> 
+    </div>
+    <div class="mt-4">
+        <img id="dogImg" src="" style="max-height: 500px;" alt="Imagen de perro">
+    </div>
+
     <script>
-        let boton = document.getElementById("btnAleatorio");
-        let img = document.getElementById("imagen");
+        const selector = document.getElementById('breedSelector');
+        const img = document.getElementById('dogImg');
 
-        // Función que al pulsar el botón haga GET a la dirección y muestra una imagen
-        boton.addEventListener("click", function() {
+        fetch('https://dog.ceo/api/breeds/list/all')
+            .then(res => res.json())
+            .then(data => {
+                const breeds = data.message;
+                for (let breed in breeds) {
+                    if (breeds[breed].length === 0) {
+                        let opt = new Option(breed, breed);
+                        selector.add(opt);
+                    } else {
+                        breeds[breed].forEach(sub => {
+                            let val = `${breed}/${sub}`;
+                            let opt = new Option(`${sub} ${breed}`, val);
+                            selector.add(opt);
+                        });
+                    }
+                }
+            });
 
-        });
+        document.getElementById('btnRandom').onclick = () => {
+            fetch('https://dog.ceo/api/breeds/image/random')
+                .then(res => res.json())
+                .then(data => img.src = data.message);
+        };
 
-
+        selector.onchange = () => {
+            if (selector.value) {
+                fetch(`https://dog.ceo/api/breed/${selector.value}/images/random`)
+                    .then(res => res.json())
+                    .then(data => img.src = data.message);
+            }
+        };
     </script>
 </body>
 </html>

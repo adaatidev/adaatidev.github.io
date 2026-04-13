@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+    <input type="text" id="ipInput" placeholder="Introduce IP (ej: 8.8.8.8)">
+    <button onclick="geolocalizar()">Buscar</button>
+    <div id="resultado"></div>
+</div>
+<script>
+    function geolocalizar() {
+        const ip = document.getElementById('ipInput').value;
+        fetch(`http://ip-api.com/json/${ip}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('resultado').innerHTML = `
+                    <p>Ciudad: ${data.city} (${data.country})</p>
+                    <iframe width="100%" height="300" src="https://maps.google.com/maps?q=${data.lat},${data.lon}&z=15&output=embed"></iframe>
+                `;
+            });
+    }
+</script>
+</body>
+</html>
