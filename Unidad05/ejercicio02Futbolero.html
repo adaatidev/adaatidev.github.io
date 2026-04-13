@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 2: Futbolero</title>
+</head>
+<body>
+    <h1>Ejercicio 2: Futbolero</h1>
+    <h2>Premier League</h2>
+    <h3>Chelsea</h3>
+    <script>
+        async function obtenerUsuario() {
+            const respuesta = await
+            fetch('https://thesportsdb.com/api/v1/json/3/searchteams.php?t=Chelsea');
+            const usuario = await respuesta.json();
+            console.log(usuario.name);
+        }
+    </script>
+</body>
+</html>
