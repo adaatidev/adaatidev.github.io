@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 1: Creación simple</title>
+</head>
+<body>
+    <h1>Ejercicio 1: Creación simple</h1>
+    <table border="1" id="tabla">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Edad</th>
+            <th>Ciudad</th>
+        </tr>
+        <tbody id="bodyTabla"></tbody>
+        </thead>
+    </table>
+    <br>
+    <br>
+    <input type="text" id="inputNombre" placeholder="Introduzca su nombre">
+    <br>
+    <input type="text" id="inputApellido" placeholder="Introduzca su apellido">
+    <br>
+    <input type="number" id="inputEdad" placeholder="Introduzca su edad">
+    <br>
+    <input type="text" id="inputCiudad" placeholder="Introduzca su ciudad">
+    <br>
+    <button id="guardar">Guardar</button>
+    <script>
+        iniciar();
+
+        function iniciar() {
+            // Objeto con una serie de valores
+            let obj = {
+                "nombre":"Alberto",
+                "apellidos":"Ramos",
+                "edad":26,
+                "ciudad":"Granada"
+            };
+        
+            // Serialización del objeto y se imprime por consola
+            let objJSON = serializar(obj);
+            console.log(objJSON);
+
+            // Deserialización del objeto y se imprime por consola
+            let objJS = deserializar(objJSON);
+            console.log(objJS);
+
+            insertarEnTabla(objJS);
+        }
+
+        // Función que recibe un objeto y lo devuelve serializado a json
+        function serializar(obj) {
+            return JSON.stringify(obj)
+        }
+
+        // Función que recibe un objeto y lo devuelve deserializado
+        function deserializar(objJson) {
+            return JSON.parse(objJson)
+        }
+
+        // Función que recibe el objeto js y lo inserta en la tabla
+        function insertarEnTabla(objJS) {
+            let cuerpo = document.getElementById("bodyTabla");
+            let fila = document.createElement("tr");
+            cuerpo.appendChild(fila);
+            insertaCelda(fila, objJS.nombre);
+            insertaCelda(fila, objJS.apellidos);
+            insertaCelda(fila, objJS.edad);
+            insertaCelda(fila, objJS.ciudad);
+        }
+
+        // Función que recibe la fila y el texto y los inserta en la celda
+        function insertaCelda (fila, texto) {
+            
+        }
+
+        document.getElementById("guardar").addEventListener("click", function() {
+
+        });
+
+    </script>
+</body>
+</html>
