@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo 02: Jquery</title>
+</head>
+<body>
+    <h1>Ejercicio 02: Insertar datos dinámicos</h1>
+    <input type="text" id="nombre" placeholder="Nombre">
+    <input type="text" id="apellido" placeholder="Apellido">
+    <input type="text" id="ciudad" placeholder="Ciudad">
+    <input type="text" id="edad" placeholder="Edad">
+    <button type="button" id="botoncin">Pulsa y observa</button>
+        <table border="1">
+        <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>Apellidos</td>
+                <td>Ciudad</td>
+                <td>Edad</td>
+            </tr>
+        </thead>
+        <tbody id="bodyTable">
+        </tbody>
+        </table>
+        <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $("#botoncin").click(function(){
+                    let datos = getInputs();
+                    let bodyTable = $("#bodyTable");
+                    insertarEnTabla(bodyTable, datos);
+                })
+            });
+
+            function getInputs(){
+                return{
+                    nombre: $("#nombre").val(),
+                    apellidos: $("#apellido").val(),
+                    ciudad: $("#ciudad").val(),
+                    edad: $("#edad").val()
+                }
+            };
+
+            function insertarEnTabla(contenedor, datos){
+                let tr = $("<tr>");
+                tr.append(creaCelda(datos.nombre));
+                tr.append(creaCelda(datos.apellidos));
+                tr.append(creaCelda(datos.ciudad));
+                tr.append(creaCelda(datos.edad));
+
+                contenedor.append(tr);
+            };
+
+            function creaCelda(dato){
+                let td = $("<td>");
+                td.text(dato);
+                return td;
+            };
+        </script>
+    </body>
+</html>

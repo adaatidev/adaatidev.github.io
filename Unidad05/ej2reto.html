@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reto 2</title>
+</head>
+<body>
+    <form>
+        <fieldset>
+            <legend>Datos del alumnado</legend>
+            <input type="text" name="nombre" id="nombre" placeholder="Nombre" required>
+            <input type="text" name="apellidos" id="apellidos" placeholder="Apellidos" required>
+            <input type="number" name="edad" id="edad" placeholder="Edad" required>
+            <input type="text" name="ciudad" id="ciudad" placeholder="Ciudad" required>
+            <button type="button" id="add">Añadir</button>
+        </fieldset>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Edad</th>
+                <th>Ciduad</th>
+            </tr>
+        </thead>
+        <tbody id="tabla"></tbody>
+    </table>
+    <br>
+    <div id="resumen">
+        <p>Suma: <span id="suma"></span></p>
+        <p>Media: <span id="media"></span></p>
+        <p>Máx: <span id="max"></span></p>
+        <p>Mín: <span id="min"></span></p>
+    </div>
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+    <script>
+        let resumen = {
+            suma: 0,
+            media: 0,
+            max: 0,
+            min: 999,
+            contador: 0,
+        }
+
+        document.getElementById("add").addEventListener("click", function() {
+            let datos = {
+                nombre: document.getElementById("nombre").value, 
+                apellidos: document.getElementById("apellidos").value, 
+                edad: document.getElementById("edad").value, 
+                ciudad: document.getElementById("ciudad").value, 
+            };
+
+            if (datos.nombre && datos.apellidos && datos.edad && datos.ciudad) {
+                let tabla = document.getElementById("tabla");
+                insertaFila(tabla, datos);
+                calcular(datos.edad);
+                limpiarCampos();
+            } else {
+                alert("Todos los campos deben estar rellenos");
+            }
+        });
+
+        function insertaFila(tabla, datos) {
+            let fila = tabla.insertRow();
+            fila.addEventListener("click", function () {
+                let siBorrar = confirm(`¿Desea eliminar a ${datos.nombre} ${datos.apellidos}?`);
+                if (siBorrar) {
+                    this.remove();
+                }
+            });
+            insertaCeldas(fila, datos);
+        }
+
+        function insertaCeldas(fila, datos) {
+            fila.insertCell().textContent = datos.nombre;
+            fila.insertCell().textContent = datos.apellidos;
+            fila.insertCell().textContent = datos.edad;
+            fila.insertCell().textContent = datos.ciudad;
+        }
+
+        function limpiarCampos() {
+            $("nombre").val("");
+            $("apellidos").val("");
+            $("edad").val("");
+            $("ciudad").val("");
+        }
+
+        function calcular(edad) {
+            resumen.contador++;
+            resumen.suma += parseInt(edad);
+            resumen.media = Math.round(resumen.suma * 100 / resumen.contador) / 100;
+            if (edad > resumen.max) {
+                resumen.max = edad;
+            }
+            if (edad < resumen.min) {
+                resumen.min = edad;
+            }
+            $("#resumen").show("visibility");
+            $("#suma").text(resumen.suma);
+            $("#media").text(resumen.media);
+            $("#max").text(resumen.max);
+            $("#min").text(resumen.min);
+        }
+        
+    </script>
+</body>
+</html>
