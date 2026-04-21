@@ -80,13 +80,6 @@
             fila.insertCell().textContent = datos.ciudad;
         }
 
-        function limpiarCampos() {
-            $("nombre").val("");
-            $("apellidos").val("");
-            $("edad").val("");
-            $("ciudad").val("");
-        }
-
         function calcular(edad) {
             resumen.contador++;
             resumen.suma += parseInt(edad);
@@ -102,6 +95,14 @@
             $("#media").text(resumen.media);
             $("#max").text(resumen.max);
             $("#min").text(resumen.min);
+        }
+
+        function limpiarCampos() {
+            $("#nombre, #apellidos, #edad, #ciudad").val("");
+        }
+
+        function actualizarDatos() {
+            
         }
         
     </script>
