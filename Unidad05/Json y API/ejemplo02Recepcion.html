@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recepción</title>
+    <title>Ejemplo 02: Recepción</title>
 </head>
 <body>
+    <h1>Recepción</h1>
     <script>
         // Pedimos la información de un usuario específico
         fetch('https://jsonplaceholder.typicode.com/users/1')
@@ -16,7 +17,14 @@
                 console.log("Nombre del usuario:", usuario.name);
                 console.log("Ciudad:", usuario.address.city);
                 console.log("Latitud:", usuario.address.geo.lat);
-    });
+            });
+
+        // Otra forma
+        async function obtenerUsuario() {
+            const respuesta = await fetch('https://jsonplaceholder.typicode.com/users/1');
+            const usuario = await respuesta.json();
+            console.log(usuario.name);
+        }
     </script>
 </body>
 </html>

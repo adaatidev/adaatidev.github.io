@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Envío</title>
+    <title>Ejemplo 01: Envío</title>
 </head>
 <body>
+    <h1>Envío</h1>
     <script>
         // 1. Definimos el objeto (Dato original)
         const nuevoPost = {
@@ -13,6 +14,7 @@
             body: "Hola clase, estoy enviando un JSON",
             userId: 1
         };
+
         // 2. Enviamos el JSON al servidor de pruebas
         fetch('https://jsonplaceholder.typicode.com/posts', {
             method: 'POST',
