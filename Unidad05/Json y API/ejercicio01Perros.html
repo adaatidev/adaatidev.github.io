@@ -40,19 +40,19 @@
                 let breedList = data2.message;
 
                 for (let breed in breedList) {
-                    let nacionality = breedList[breed];
-                    if (nacionality.length === 0) {
-                        select.append(`<option value=${breed}>${breed}</option>`);
+                    let subBreeds = breedList[breed];
+                    if (subBreeds.length === 0) {
+                        select.append(`<option value="${breed}">${breed}</option>`);
                     } else {
-                        let dogGroup = $(`<optgroup label=${breed}></optgroup>`);
-                        
-                        nacionality.forEach(dogNation => {
-                            dogGroup.append(`<option value=${breed}-${dogNation}>${dogNation}</option>`);
+                        let dogGroup = $(`<optgroup label="${breed}"></optgroup>`);
+                
+                        subBreeds.forEach(subBreed => {
+                            dogGroup.append(`<option value="${breed}-${subBreed}">${subBreed}</option>`);
                         });    
                         select.append(dogGroup);
                     }
-                };
-            };
+                }
+            }
 
             select.on('change', async function(event) {
                 let dogSelected = event.target.value;
