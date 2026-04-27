@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 5: El Tiempo Local</title>
+    <!-- Enlace para obtener el bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Local Time</h1>
+    <div>
+        <input id="cityInput" type="text" placeholder="Write down the city">
+        <button id="button" type="button">Search</button>
+    </div>
+    <div>
+        <p id="info"></p>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const searchCity = $("#button");
+            const infoContainer = $("#info");
+
+            searchCity.on('click', async function() {
+                const city = $("#cityInput").val().trim().toLowerCase();
+
+                if (city === "") {
+                    alert("Please, write down a city");
+                    return;
+                }
+
+                const request = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`);
+                const data = await request.json();
+
+                if (!data.results || data.results.length === 0) {
+                    infoContainer.html(`<p>Ciudad no encontrada</p>`);
+                    return;
+                }
+
+                const cityData = data.results[0]; 
+                const lat = cityData.latitude;
+                const lon = cityData.longitude;
+                const cityName = cityData.name;
+
+                const request2 = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const data2 = await request2.json();
+
+                infoContainer.html(`
+                    <h3>Ciudad: ${cityName}</h3>
+                    <p>Temperatura: ${data2.current_weather.temperature}°C</p>
+                    <p>Velocidad del viento: ${data2.current_weather.windspeed}</p>
+                `);
+
+                const weather = data2.current_weather;
+                const isDay = weather.is_day;
+
+                if (isDay === 1) {
+                    $("body").css({
+                        "background-color": "#f0f8ff",
+                        "color": "#333"
+                    });
+                } else {
+                    $("body").css({
+                        "background-color": "#2c3e50",
+                        "color": "#ecf0f1"
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

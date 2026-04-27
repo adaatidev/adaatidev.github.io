@@ -3,102 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex Básica - Ejercicio 4</title>
+    <title>Ejercicio 4: Pokédex Básica</title>
+    <!-- Enlace para obtener el bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .pokedex-card { width: 100%; max-width: 450px; background: white; border-radius: 15px; border: 4px solid #333; }
-        .pokemon-img { width: 200px; height: 200px; object-fit: contain; }
-        .type-badge { margin: 0 5px; text-transform: capitalize; padding: 8px 15px; }
-    </style>
 </head>
 <body>
-
-<div class="pokedex-card shadow-lg p-4">
-    <h2 class="text-center mb-4">Pokédex Básica</h2>
-
-    <div class="input-group mb-3">
-        <input type="text" id="poke-input" class="form-control" placeholder="Nombre o ID del Pokémon">
-        <button class="btn btn-danger" id="btn-search">Buscar</button>
+    <h1>Basic Pokédex</h1>
+    <input id="input" type="text" placeholder="Name or ID">
+    <button id="button" type="button">Search</button>
+    <div>
+        <p id="info"></p>
+        <img id="img" src="" alt="Pokémon image" height="200px" width="200px">
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const search = $("#button");
+            const infoContainer = $("#info");
+            let typesList = "";
 
-    <div id="poke-display" class="text-center d-none">
-        <hr>
-        <h3 id="poke-name" class="text-uppercase fw-bold"></h3> <img id="poke-img" class="pokemon-img" src="" alt="Imagen Pokémon">
-        
-        <div id="poke-types" class="mt-2 mb-4 d-flex justify-content-center">
-            </div>
+            search.on('click', async function () {
+                const nameID = $("#input").val().trim().toLowerCase();
 
-        <div class="d-flex justify-content-between mt-3">
-            <button class="btn btn-outline-dark" id="btn-prev">Anterior</button>
-            <button class="btn btn-outline-dark" id="btn-next">Siguiente</button>
-        </div>
-    </div>
-
-    <div id="error-msg" class="alert alert-warning d-none mt-3">Pokémon no encontrado.</div>
-</div>
-
-<script>
-    // Variable para rastrear el ID actual y permitir navegación 
-    let currentPokemonId = null;
-
-    const input = document.getElementById('poke-input');
-    const display = document.getElementById('poke-display');
-    const errorMsg = document.getElementById('error-msg');
-
-    // Función para realizar la petición GET 
-    async function getPokemon(query) {
-        try {
-            const url = `https://pokeapi.co/api/v2/pokemon/${query.toString().toLowerCase()}`;
-            const response = await fetch(url);
+                if (nameID === "") {
+                    alert("Please, write down a pokémon");
+                    return;
+                }
+                
+                const request = await fetch(`https://pokeapi.co/api/v2/pokemon/${nameID}`);
             
-            if (!response.ok) throw new Error("No encontrado");
+                if (!request.ok) {
+                    infoContainer.html("<p>Pokémon not found</p>");
+                    return;
+                }
 
-            const data = await response.json();
-            renderPokemon(data);
-        } catch (error) {
-            display.classList.add('d-none');
-            errorMsg.classList.remove('d-none');
-        }
-    }
+                const data = await request.json();
+                const pokeName = data.name;
 
-    // Función para mostrar la información en pantalla 
-    function renderPokemon(pokemon) {
-        currentPokemonId = pokemon.id; // Guardamos el ID para el reto 
-        
-        // 1. Nombre en mayúsculas 
-        document.getElementById('poke-name').textContent = pokemon.name;
+                infoContainer.html(`<h2>${pokeName.toUpperCase()}</h2>`);
 
-        // 2. Imagen front_default 
-        document.getElementById('poke-img').src = pokemon.sprites.front_default;
+                const pokeImg = $("#img");
 
-        // 3. Lista de tipos 
-        const typesContainer = document.getElementById('poke-types');
-        typesContainer.innerHTML = '';
-        pokemon.types.forEach(t => {
-            const span = document.createElement('span');
-            span.className = 'badge bg-primary type-badge';
-            span.textContent = t.type.name;
-            typesContainer.appendChild(span);
+                pokeImg.attr("src", data.sprites.front_default);
+
+                data.types.forEach(type => {
+                    typesList += `<span>${type.type.name}</span>`;
+                });
+            });
         });
-
-        display.classList.remove('d-none');
-        errorMsg.classList.add('d-none');
-    }
-
-    // Eventos
-    document.getElementById('btn-search').addEventListener('click', () => {
-        if (input.value) getPokemon(input.value);
-    });
-
-    // Lógica de botones Anterior/Siguiente 
-    document.getElementById('btn-prev').addEventListener('click', () => {
-        if (currentPokemonId > 1) getPokemon(currentPokemonId - 1);
-    });
-
-    document.getElementById('btn-next').addEventListener('click', () => {
-        if (currentPokemonId) getPokemon(currentPokemonId + 1);
-    });
-</script>
+    </script>
 </body>
 </html>
