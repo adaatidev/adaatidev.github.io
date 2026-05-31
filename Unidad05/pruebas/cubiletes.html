@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 2: Los Cubiletes</title>
+    <style>
+        /* Un poco de estilo básico para los mensajes */
+        .exito { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .vaso-btn { margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Ejercicio 2: Los cubiletes</h1>
+    <h2>Tu Nombre Y Apellidos</h2>
+
+    <hr>
+
+    <form id="form-login">
+        <input type="hidden" id="nom_alum" name="nom_alum" value="Tu Nombre Real">
+        <input type="hidden" id="num_ejer" name="num_ejer" value="2">
+
+        <label for="usuario">Usuario:</label>
+        <input type="text" id="usuario" name="usuario" required>
+
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit" id="btn-enviar">Enviar</button>
+    </form>
+
+    <hr>
+
+    <div id="contenedor-vasos"></div>
+
+    <div id="zona-mensajes"></div>
+
+    <h3>Ranking de Ganadores</h3>
+    <ol id="lista-ranking"></ol>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+    
+    // URL base de la API (ajústala si usa http://)
+    const urlBase = "http://192.168.190.150/api";
+
+    // Variables globales para recordar el estado de la partida
+    let usuarioActual = "";
+    let partidaIniciada = false;
+
+    // ==========================================
+    // 1. GESTIÓN DEL LOGIN / CONFIGURACIÓN
+    // ==========================================
+    $("#form-login").on("submit", function(e) {
+        // Evitamos que la página se recargue al enviar el formulario
+        e.preventDefault();
+
+        // Si la partida ya inició, el botón "Enviar" actúa como REINICIO (Punto 4 del ejercicio)
+        if (partidaIniciada) {
+            reiniciarPartida();
+            return; // Cortamos la ejecución aquí
+        }
+
+        // Capturamos los valores de los inputs
+        let nomAlum = $("#nom_alum").val().trim();
+        let numEjer = $("#num_ejer").val().trim();
+        let usuario = $("#usuario").val().trim();
+        let password = $("#password").val().trim();
+
+        // Validación mediante código (Asegurarse de que no estén vacíos)
+        if (nomAlum === "" || numEjer === "" || usuario === "" || password === "") {
+            alert("Por favor, rellena todos los campos.");
+            return;
+        }
+
+        // Guardamos el usuario actual para las siguientes peticiones
+        usuarioActual = usuario;
+
+        // Petición AJAX (POST) para el Login / Registro
+        $.ajax({
+            url: urlBase + "/vasos",
+            type: "POST",
+            data: {
+                nom_alum: nomAlum,
+                num_ejer: numEjer,
+                usuario: usuario,
+                password: password
+            },
+            success: function(respuesta) {
+                // Observamos la consola para depurar
+                console.log("Respuesta login:", respuesta);
+
+                // Bloqueamos los inputs del formulario (Requisito punto 12)
+                $("#form-login input").prop("disabled", true);
+                
+                // Marcamos que la partida ha comenzado
+                partidaIniciada = true;
+
+                // Suponiendo que la API devuelve un objeto con el número de vasos (ej: respuesta.num_vasos)
+                // Ajusta 'respuesta.num_vasos' según lo que veas en tu consola.
+                let cantidadVasos = respuesta.num_vasos || 3; // Ponemos 3 por defecto si falla
+
+                // Pintamos los vasos en pantalla
+                pintarVasos(cantidadVasos);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error en el login:", error);
+                alert("Hubo un error al conectar con la API.");
+            }
+        });
+    });
+
+    // ==========================================
+    // FUNCIÓN PARA PINTAR LOS VASOS
+    // ==========================================
+    function pintarVasos(cantidad) {
+        // Limpiamos el contenedor por si acaso
+        $("#contenedor-vasos").empty();
+
+        // Generamos tantos botones como vasos nos indique la API
+        for (let i = 1; i <= cantidad; i++) {
+            let botonVaso = $("<button>")
+                .addClass("vaso-btn")
+                .text("Vaso " + i)
+                .attr("data-vaso", i); // Guardamos el número de vaso en un atributo
+
+            $("#contenedor-vasos").append(botonVaso);
+        }
+    }
+
+    // ==========================================
+    // 2. LA PARTIDA Y LOS RESULTADOS (Punto 18)
+    // ==========================================
+    // Usamos delegación de eventos porque los botones se crean dinámicamente
+    $("#contenedor-vasos").on("click", ".vaso-btn", function() {
+        // Obtenemos el número del vaso clickeado
+        let vasoElegido = $(this).attr("data-vaso");
+
+        // Bloqueamos todos los botones de los vasos inmediatamente
+        $(".vaso-btn").prop("disabled", true);
+
+        // Envío de la jugada a la API (/api/jugar)
+        $.ajax({
+            url: urlBase + "/jugar",
+            type: "POST",
+            data: {
+                vaso: vasoElegido,
+                usuario: usuarioActual
+            },
+            success: function(respuesta) {
+                console.log("Respuesta jugada:", respuesta);
+
+                // Borramos los botones de los vasos (Requisito)
+                $("#contenedor-vasos").empty();
+
+                // Mostramos el mensaje con color distintivo (clase exito o error según la respuesta)
+                // Nota: Adapta 'respuesta.status' o 'respuesta.resultado' según lo que devuelva tu API
+                let zonaMensajes = $("#zona-mensajes");
+                zonaMensajes.text(respuesta.message);
+
+                if (respuesta.status === "success" || respuesta.status === true) {
+                    zonaMensajes.attr("class", "exito");
+                } else {
+                    zonaMensajes.attr("class", "error");
+                }
+
+                // Renderizar el ranking en el elemento <ol>
+                renderizarRanking(respuesta.ranking);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error al jugar:", error);
+                // Si falla, volvemos a habilitar por si quiere reintentar
+                $(".vaso-btn").prop("disabled", false);
+            }
+        });
+    });
+
+    // ==========================================
+    // FUNCIÓN PARA RENDERIZAR EL RANKING
+    // ==========================================
+    function renderizarRanking(ranking) {
+        let lista = $("#lista-ranking");
+        lista.empty(); // Limpiamos el ranking anterior
+
+        // Comprobamos que venga un array válido
+        if (ranking && Array.isArray(ranking)) {
+            ranking.forEach(function(jugador) {
+                // Ajusta 'jugador.usuario' y 'jugador.puntos' a las propiedades reales de tu API
+                let li = $("<li>").text(`${jugador.usuario} - Aciertos: ${jugador.puntos}`);
+                lista.append(li);
+            });
+        }
+    }
+
+    // ==========================================
+    // 4. REINICIO DE LA PARTIDA (Punto 24)
+    // ==========================================
+    function reiniciarPartida() {
+        // Limpiamos la zona de mensajes
+        $("#zona-mensajes").empty().removeClass();
+
+        // Volvemos a pedir a la API la configuración haciendo login automático
+        // ya que el enunciado dice: "reinicia la partida con el mismo usuario escrito"
+        let nomAlum = $("#nom_alum").val();
+        let numEjer = $("#num_ejer").val();
+        let usuario = $("#usuario").val();
+        let password = $("#password").val();
+
+        $.ajax({
+            url: urlBase + "/vasos",
+            type: "POST",
+            data: {
+                nom_alum: nomAlum,
+                num_ejer: numEjer,
+                usuario: usuario,
+                password: password
+            },
+            success: function(respuesta) {
+                console.log("Partida reiniciada. Nueva config:", respuesta);
+                let cantidadVasos = respuesta.num_vasos || 3;
+                
+                // Pintamos de nuevo los vasos limpios
+                pintarVasos(cantidadVasos);
+            }
+        });
+    }
+});
+    </script>
+</body>
+</html>
