@@ -3,115 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infiltración en el Servidor de la Sociedad Secreta</title>
-    <!-- Enlace para obtener el bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Ejercicio 1: Infiltración en el Servidor</title>
     <style>
-        .successMsg {
+        #mensaje-exito {
             color: green;
+        }
+        body {
+            margin-left: 30px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
         }
     </style>
 </head>
 <body>
-    <h1>Ejercicio 1: Infiltración en el Servidor de la Sociedad Secreta</h1>
+    <h1>Ejercicio 1: Infiltración en el Servidor</h1>
     <h2>Ada Atienza Devós</h2>
 
-    <button id="btnInstrucciones" type="button">btnInstrucciones</button>
+    <button type="button" id="btn-instrucciones">Instrucciones</button>
+
+    <h2 id="mensaje-exito"></h2>
+
+    <form id="form-infiltracion">
+        <input type="hidden" id="nom_alum" name="nom_alum" value="Ada">
+        <input type="hidden" id="num_ejer" name="num_ejer" value="1">
+    
+        <label for="nombre">Nombre</label><br>
+        <input type="text" id="nombre" name="nombre" required><br>
+    
+        <label for="apellidos">Apellidos</label><br>
+        <input type="text" id="apellidos" name="apellidos" required><br>
+    
+        <label for="password">Contraseña</label><br>
+        <input type="password" id="password" name="password" value="1q2w3e" required>
+    
+        <input type="hidden" id="llave" name="llave" value=""><br><br>
+    
+        <button type="submit" id="btn-enviar">Enviar</button>
+    </form>
 
     <ol id="instrucciones"></ol>
 
-    <h2 id="mensajeExito"></h2>
-
-    <br><hr><br>
-
-    <form id="formInfiltracion">
-        <input type="hidden" id="nom_alum" value="Ada">
-
-        <input type="hidden" id="num_ejer" value="1">
-
-        <label for="nombre">Nombre: </label>
-        <input type="text" id="nombre" required><br><br>
-
-        <label for="apellidos">Apellidos: </label>
-        <input type="text" id="apellidos" required><br><br>
-
-        <label for="password">Contraseña: </label>
-        <input type="password" id="password" value="1q2w3e" required><br><br>
-
-        <input type="hidden" id="llave" value="">
-
-        <button type="submit" id="btnEnviar">Enviar</button>
-    </form>
-
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
     <script>
         $(document).ready(function() {
             const apiUrl = "http://192.168.100.150/api/secret";
 
-            // Petición GET
-            $('#btnInstrucciones').click(function() {
-                // Se vacía la lista para evitar duplicados
+            $('#btn-instrucciones').click(function() {
+                // Primero se vacía la lista para que no hayan duplicaciones
                 $('#instrucciones').empty();
 
-                // Petición AJAX de tipo GET
                 $.ajax({
-                    url: apiUrl,
-                    type: 'GET',
-                    dataType: 'json',
+                    // A dónde va el paquete
+                    url: apiUrl, 
+                    // Tipo de acción
+                    type: 'GET', 
+                    // Formato de respuesta
+                    dataType: 'json', 
+                    // Si todo sale bien
                     success: function(response) {
-                        // El servidor devuelve un array JSON con las instrucciones. Recorre el array usando el método $.each de jQuery
+                        // Recorre el array, por cada elemento crea un nuevo elemento en la lista y lo añade a ella
                         $.each(response, function(index, instruccion) {
-                            // Crea un elemento <li> y lo añade a la lista <ol id="instrucciones">
-                            $('#instrucciones').append('li' + instruccion + '/li');
-                            // Forma correcta en código
-                            $('#instrucciones').append($('<li>').text(instruccion));
+                            let nuevoElemento = $('<li>').text(instruccion);
+                            $('#instrucciones').append(nuevoElemento);
                         });
-
-                        // Se muestra el mensaje de éxito en el h2 verde
-                        $('#mensajeExito').text("Instrucciones cargadas correctamente.");
-                        console.log("Fase 1 EXITOSA: ", response);
-                    },
+                        // Escribe el mensaje verde de éxito
+                        $('#mensaje-exito').text("¡Instrucciones de la misión cargadas con éxito!");
+                        // Mensaje para verificar el flujo de datos desde la consola
+                        console.log("Fase 1 completada. Servidor respondió:", response);
+                    }, 
+                    // Si algo sale mal
                     error: function(xhr, status, error) {
-                        // Los errores se siguen por consola o red como pide el enunciado
-                        console.error("Error en Fase 1 (GET):", status, error);
-                        console.log("Respuesta del servidor:", xhr.responseText);
+                        // Imprime por consola toda la información sobre el error
+                        console.error("Error en la fase 1 (GET): ", status, error);
+                        console.log("Cuerpo de la respuesta de error: ", xhr.responseText);
                     }
                 });
             });
 
-            // Envío de formulario
-            $('#formInfiltracion').submit(function(event) {
-                // Evita que la página se recargue al pulsar enviar
+            // Envío del formulario
+            $('#form-infiltracion').submit(function(event) { 
+                // Detenemos la recarga automática de la página que hace el navegador por defecto
                 event.preventDefault();
 
-                // Serialización de los datos del formulario
-                let datosFormulario = $(this).serialize();
+                // Serialización de los datos del formulario a enviar
+                let datosParaEnviar = $(this).serialize();
 
-                console.log("Enviando datos al servidor...", datosFormulario);
+                // Control por consola
+                console.log("Enviando el siguiente paquete de datos al servidor:", datosParaEnviar);
 
-                // Método POST AJAX
                 $.ajax({
+                    // A dónde va el paquete
                     url: apiUrl, 
+                    // Tipo de acción
                     type: 'POST',
-                    data: datosFormulario, 
-                    dataType: 'json',
+                    // Qué se va a mandar
+                    data: datosParaEnviar,
+                    // Formato de respuesta
+                    dataType: 'json', 
+                    // Si todo sale bien
                     success: function(response) {
-                        // Comprobamos si la respuesta viene con la estructura 'status' y 'message'
+                        // Si la respuesta es correcta se pone el mensaje de la respuesta en el título h2 verde
                         if (response.status === "success" || response.status === true) {
-                            $('#mensajeExito').text(response.message);
+                            $('#mensaje-exito').text(response.message);
                         }
-                        
-                        // Si el servidor te devuelve una "llave" en este paso, se le debe asignar al input hidden:
-                        // $('#llave').val(response.nueva_llave);
-
-                        console.log("Respuesta del servidor (POST):", response);
+                        // Control por consola
+                        console.log("Respuesta del servidor al enviar el formulario", response);
                     },
-
+                    // Si algo sale mal
                     error: function(xhr, status, error) {
-                        // Manejo de errores por consola
-                        console.error("Error en el envío del formulario:", status, error);
-                        console.log("Detalles del error en el servidor:", xhr.responseText);
+                        // Imprime por consola toda la información sobre el error
+                        console.error("Error en la fase 2 (POST): ", status, error);
+                        console.log("Cuerpo de la respuesta de error: ", xhr.responseText);
                     }
                 });
             });
