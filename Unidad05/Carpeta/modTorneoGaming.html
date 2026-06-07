@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Torneos Gaming - Corrección</title>
+    <style>
+        .equipo-completo {
+            background-color: #fff3cd !important;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .btn-eliminar {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .panel-estadisticas {
+            background-color: #e2e3e5;
+            padding: 15px;
+            max-width: 670px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gestor de Torneos Gaming</h1>
+
+    <form id="form-equipo">
+        <label for="input-nombre">Nombre del equipo</label><br>
+        <input type="text" id="input-nombre" name="input-nombre"><br><br>
+
+        <label for="input-numJug">Número de jugadores</label><br>
+        <input type="number" id="input-numJug" name="input-numJug" min="1" max="6" value="1"><br><br>
+
+        <fieldset>
+            <legend>Juegos disponibles (máx 2)</legend>
+            <div class="checkbox-group">
+                <label> <input type="checkbox" name="juegos[]" value="League of Legends"> <span>League of Legends</span>
+                </label>
+                <label> <input type="checkbox" name="juegos[]" value="Valorant"> <span>Valorant</span> </label>
+                <label> <input type="checkbox" name="juegos[]" value="CS2"> <span>CS2</span> </label>
+            </div>
+        </fieldset><br>
+
+        <button type="submit">Registrar equipo</button>
+    </form><br>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre del equipo</th>
+                <th>Número de jugadores</th>
+                <th>Juegos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+        </tbody>
+    </table>
+
+    <div id="estadisticas" class="panel-estadisticas"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let listaEquipos = [];
+
+            //  Conexión a la API
+            $.ajax({
+                url: 'equipos.json',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    console.log("Se ha conectado correctamente a la API", response);
+                    listaEquipos = response;
+                    // Dibuja la tabla por primera vez con los datos cargados
+                    pintarTabla();
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: no se pudo conectar a la API de inscripciones.");
+                    console.error("Error al conectar con la API", status, error);
+                }
+            });
+
+            //  Checkboxes
+            $('input[name="juegos[]"]').change(function () {
+                let marcados = $('input[name="juegos[]"]:checked').length;
+                if (marcados >= 2) {
+                    $('input[name="juegos[]"]').not(':checked').prop('disabled', true);
+                } else {
+                    $('input[name="juegos[]"]').prop('disabled', false);
+                }
+            });
+
+            // Formulario
+            $('#form-equipo').submit(function (event) {
+                event.preventDefault();
+
+                let nombreEquipo = $('#input-nombre').val().trim();
+                // Parseo
+                let numJugadores = parseInt($('#input-numJug').val());
+
+                let juegosSeleccionados = $('input[name="juegos[]"]').filter(':checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (nombreEquipo === "") {
+                    alert("El nombre del equipo es obligatorio");
+                    return;
+                }
+
+                let objeto = {
+                    nombre: nombreEquipo,
+                    jugadores: numJugadores,
+                    juegos: juegosSeleccionados
+                };
+
+                listaEquipos.push(objeto);
+
+                // Redibuja la tabla tras inserción
+                pintarTabla();
+
+                this.reset();
+                $('input[name="juegos[]"]').prop('disabled', false);
+            });
+
+            function pintarTabla() {
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                let totalEquipos = listaEquipos.length;
+                let sumaJugadores = 0;
+
+                $.each(listaEquipos, function (index, equipo) {
+                    let nuevaFila = $('<tr>');
+
+                    nuevaFila.attr('data-indice', index);
+
+                    if (equipo.jugadores === 6) {
+                        nuevaFila.addClass('equipo-completo');
+                    }
+
+                    sumaJugadores += equipo.jugadores;
+
+                    let juegosSelec = equipo.juegos.length > 0 ? equipo.juegos.join(', ') : '-';
+
+                    let botonEliminar = $('<button class="btn-eliminar">').text('Eliminar');
+
+                    nuevaFila.append(
+                        $('<td>').text(equipo.nombre),
+                        $('<td>').text(equipo.jugadores),
+                        $('<td>').text(juegosSelec), 
+                        $('<td>').append(botonEliminar)
+                    );
+
+                    tbody.append(nuevaFila);
+                });
+
+                let mediaJugadores = totalEquipos > 0 ? (sumaJugadores / totalEquipos).toFixed(1) : 0;
+                $('#estadisticas').html(
+                    "Total Equipos: " + totalEquipos + " | " +
+                    "Suma Total Jugadores: " + sumaJugadores + " | " +
+                    "Media Jugadores/Equipo: " + mediaJugadores
+                );
+            }
+
+            $('#cuerpo-tabla').on('click', '.btn-eliminar', function () {
+                let filaPadre = $(this).closest('tr');
+                let indiceABorrar = filaPadre.data('indice');
+
+                listaEquipos.splice(indiceABorrar, 1);
+
+                pintarTabla();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

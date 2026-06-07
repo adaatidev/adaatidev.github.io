@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Reservas de Hotel - Corrección</title>
+    <style>
+        .huesped-vip {
+            background-color: #d4edda !important;
+        }
+
+        .panel-estadisticas {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            max-width: 600px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gestor de Reservas de Hotel</h1>
+    <h2>Ada</h2>
+
+    <form id="form-reserva">
+        <label for="input-nombre">Nombre del cliente</label><br>
+        <input type="text" id="input-nombre" name="input-nombre" required><br>
+
+        <label for="input-noches">Número de noches</label><br>
+        <input type="number" id="input-noches" name="input-noches" min="1" max="5" required><br><br>
+
+        Servicios extra:<br>
+        <label> <input type="checkbox" name="servicios[]" value="Desayuno"> <span>Desayuno</span> </label>
+        <label> <input type="checkbox" name="servicios[]" value="Parking"> <span>Parking</span> </label>
+        <label> <input type="checkbox" name="servicios[]" value="Mascota"> <span>Mascota</span> </label>
+        <br><br>
+        <button type="submit">Confirmar reserva</button>
+    </form><br>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Noches</th>
+                <th>Servicios extra</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+    </table>
+
+    <div id="estadisticas" class="panel-estadisticas"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const apiUrl = "reservas.json";
+            let listaReservas = [];
+
+            // Conexión con la API
+            $.ajax({
+                url: apiUrl,
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    listaReservas = response;
+                    pintarTabla();
+                    console.log("Se ha conectado correctamente a la API", response);
+                },
+                error: function (xhr, status, error) {
+                    alert("Error al conectar con el servidor de Booking");
+                    console.error("Error en la conexión con la API: ", status, error);
+                }
+            });
+
+            // Checkbox
+            $('input[name="servicios[]"]').change(function () {
+                let marcados = $('input[name="servicios[]"]:checked').length;
+
+                if (marcados >= 2) {
+                    $('input[name="servicios[]"]').not(':checked').prop('disabled', true);
+                } else {
+                    $('input[name="servicios[]"]').prop('disabled', false);
+                }
+
+                console.log("Checkbox marcados ahora mismo: " + marcados);
+            });
+
+            // Inserción manual y validaciones del formulario
+            $('#form-reserva').submit(function (event) {
+                event.preventDefault();
+
+                let nombre = $('#input-nombre').val().trim();
+
+                let noches = parseInt($('#input-noches').val());
+
+                let serviciosExtra = $('input[name="servicios[]"]').filter(':checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (nombre === "") {
+                    alert("El nombre del cliente es obligatorio");
+                    return;
+                }
+
+                let objetoCliente = {
+                    cliente: nombre,
+                    noches: noches,
+                    extras: serviciosExtra
+                };
+
+                listaReservas.push(objetoCliente);
+
+                pintarTabla();
+
+                this.reset();
+                $('input[name="servicios[]"]').prop('disabled', false);
+            });
+
+            // Función pintarTabla()
+            function pintarTabla() {
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                let totalHabitaciones = listaReservas.length;
+                let sumaNoches = 0;
+
+                $.each(listaReservas, function (index, reserva) {
+                    let nuevaFila = $('<tr>');
+
+                    nuevaFila.attr('data-indice', index);
+
+                    if (reserva.noches === 5) {
+                        nuevaFila.addClass('huesped-vip');
+                    }
+
+                    let serviciosSelec = (reserva.extras && reserva.extras.length > 0) ? reserva.extras.join(', ') : '-';
+
+                    let botonEliminar = $('<button type="button" class="btn-eliminar">').text("Dar de baja");
+
+                    nuevaFila.append(
+                        $('<td>').text(reserva.cliente),
+                        $('<td>').text(reserva.noches),
+                        $('<td>').text(serviciosSelec),
+                        $('<td>').append(botonEliminar)
+                    );
+
+                    sumaNoches += reserva.noches;
+                    tbody.append(nuevaFila);
+                });
+
+                let estanciaMedia = totalHabitaciones > 0 ? (sumaNoches / totalHabitaciones).toFixed(1) : 0;
+
+                $('#estadisticas').html(
+                    "Total de habitaciones: " + totalHabitaciones + " | " +
+                    "Suma total de noches: " + sumaNoches + " | " +
+                    "Estancia media: " + estanciaMedia
+                );
+            }
+
+            // Eliminación delegada usando índices
+            $('#cuerpo-tabla').on('click', '.btn-eliminar', function () {
+                let filaPadre = $(this).closest('tr');
+
+                let indiceABorrar = filaPadre.data('indice');
+
+                listaReservas.splice(indiceABorrar, 1);
+
+                pintarTabla();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

@@ -91,7 +91,7 @@
                 solicitarConfiguracionPartida();
             });
 
-            // 3. Función para pedir la configuración (Vasos)
+            // Función para pedir la configuración (vasos)
             function solicitarConfiguracionPartida() {
                 let datosFormulario = $('#form-login').serialize();
 
@@ -105,11 +105,10 @@
 
                         usuarioLogueado = true;
 
-                        // Bloqueamos inputs de login
+                        // Bloquea los inputs de login
                         $('#usuario').prop('disabled', true);
                         $('#password').prop('disabled', true);
 
-                        // CORREGIDO: Añadido el '#' que faltaba
                         $('#contenedor-vasos').empty();
 
                         let cantidadVasos = response.num_vasos || 3; // Por seguridad, si falla toma 3 por defecto
@@ -128,12 +127,9 @@
                 });
             }
 
-            // 4. Evento de la Jugada (CORREGIDO: Sacado fuera de la función para que no se duplique)
             $(document).on('click', '.btn-vaso', function () {
                 let vasoElegido = $(this).attr('data-id-vaso');
 
-                // CORREGIDO: Como el input '#usuario' está disabled, .val() a veces falla en algunos navegadores antiguos. 
-                // Usamos prop('defaultValue') o simplemente leemos el valor del atributo directamente.
                 let usuarioActual = $('#usuario').val();
 
                 $('.btn-vaso').prop('disabled', true);
@@ -155,7 +151,6 @@
 
                         $('#contenedor-vasos').empty();
 
-                        // Limpiamos clases viejas de alertas anteriores
                         $('#mensaje-servidor').removeClass('msg-exito msg-error');
 
                         if (response.status === "success" || response.resultado === "ganado") {
@@ -184,7 +179,7 @@
                 });
             });
 
-        }); // Aquí termina el gran bloque del DOM Ready
+        });
     </script>
 </body>
 

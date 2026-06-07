@@ -1,0 +1,17 @@
+[
+    {
+        "puesto": 2,
+        "usuario": "Tech Solutions",
+        "tipo": "Premium"
+    },
+    {
+        "puesto": 5,
+        "usuario": "Elena Martínez",
+        "tipo": "Básico"
+    },
+    {
+        "puesto": 9,
+        "usuario": "Pixel Studio",
+        "tipo": "Premium"
+    }
+]

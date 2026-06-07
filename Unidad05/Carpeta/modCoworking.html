@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Coworking - Solución Oficial</title>
+    <style>
+        /* CSS REQUISITO: Estilo dinámico para pases Premium */
+        .pase-premium {
+            background-color: #e3f2fd !important;
+            /* Azul muy claro / Cian */
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .btn-vaciar {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-vaciar:hover {
+            background-color: #bd2130;
+        }
+
+        .panel-estadisticas {
+            background-color: #f8f9fa;
+            padding: 15px;
+            max-width: 678px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        .disponible {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Control de Puestos - Coworking</h1>
+    <h2>Ada</h2>
+
+    <form id="form-coworking">
+        <label for="input-usuario">Nombre del Usuario / Empresa</label><br>
+        <input type="text" id="input-usuario" required><br><br>
+
+        <label for="input-puesto">Número de Puesto (1 al 10)</label><br>
+        <input type="number" id="input-puesto" min="1" max="10" required><br><br>
+
+        <label>Tipo de Pase:</label><br>
+        <label><input type="radio" name="tipo_pase" value="Básico" checked> Básico</label>
+        <label><input type="radio" name="tipo_pase" value="Premium"> Premium</label>
+        <br><br>
+
+        <button type="submit">Asignar Puesto</button>
+    </form><br>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nº Puesto</th>
+                <th>Usuario</th>
+                <th>Tipo de Pase</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+        </tbody>
+    </table>
+
+    <div id="estadisticas" class="panel-estadisticas"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let puestosCoworking = new Array(10).fill(null);
+
+            $.ajax({
+                url: 'coworking.json',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    console.log("Datos recibidos de la central:", response);
+
+                    $.each(response, function (index, item) {
+                        let indiceReal = item.puesto - 1;
+
+                        puestosCoworking[indiceReal] = {
+                            usuario: item.usuario,
+                            tipo: item.tipo
+                        };
+                    });
+
+                    pintarTabla();
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: No se pudo conectar con el servidor central de Coworking.");
+                    console.error("Detalles del error AJAX:", status, error);
+                }
+            });
+
+            $('#form-coworking').submit(function (event) {
+                event.preventDefault();
+
+                let usuario = $('#input-usuario').val().trim();
+                let puestoTexto = $('#input-puesto').val().trim();
+                let tipoPase = $('input[name="tipo_pase"]:checked').val();
+
+                if (usuario === "" || puestoTexto === "") {
+                    alert("Todos los campos son obligatorios.");
+                    return;
+                }
+
+                let numPuesto = parseInt(puestoTexto);
+                let indiceArray = numPuesto - 1;
+
+                if (puestosCoworking[indiceArray] !== null) {
+                    alert("Aviso: El puesto " + numPuesto + " ya está ocupado por otra empresa.");
+                    return;
+                }
+
+                puestosCoworking[indiceArray] = {
+                    usuario: usuario,
+                    tipo: tipoPase
+                };
+
+                pintarTabla();
+                this.reset();
+            });
+
+            function pintarTabla() {
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                let puestosOcupados = 0;
+
+                $.each(puestosCoworking, function (index, puesto) {
+                    let numPuestoDisplay = index + 1;
+                    let nuevaFila = $('<tr>');
+
+                    nuevaFila.attr('data-indice', index);
+
+                    let tdPuesto = $('<td>').text("Puesto " + numPuestoDisplay);
+                    let tdUsuario = $('<td>');
+                    let tdTipo = $('<td>');
+                    let tdAccion = $('<td>');
+
+                    if (puesto !== null) {
+                        tdUsuario.text(puesto.usuario);
+                        tdTipo.text(puesto.tipo);
+
+                        let botonVaciar = $('<button class="btn-vaciar">').text('Vaciar');
+                        tdAccion.append(botonVaciar);
+
+                        if (puesto.tipo === "Premium") {
+                            nuevaFila.addClass('pase-premium');
+                        }
+
+                        puestosOcupados++;
+                    } else {
+                        tdUsuario.text('-');
+                        tdTipo.text('-');
+                        tdAccion.html('<span class="disponible">Disponible</span>');
+                    }
+
+                    nuevaFila.append(tdPuesto, tdUsuario, tdTipo, tdAccion);
+                    tbody.append(nuevaFila);
+                });
+
+                let puestosLibres = 10 - puestosOcupados;
+                let porcentajeOcupacion = puestosOcupados * 10;
+
+                $('#estadisticas').html(
+                    "Puestos Ocupados: " + puestosOcupados + " | " +
+                    "Puestos Libres: " + puestosLibres + " | " +
+                    "Porcentaje de Ocupación: " + porcentajeOcupacion + "%"
+                );
+            }
+
+            $('#cuerpo-tabla').on('click', '.btn-vaciar', function () {
+                let filaPadre = $(this).closest('tr');
+
+                let indiceALiberar = filaPadre.data('indice');
+
+                puestosCoworking[indiceALiberar] = null;
+
+                pintarTabla();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

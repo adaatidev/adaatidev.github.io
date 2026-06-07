@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Infiltración en Redes - Modelo Examen</title>
+    <style>
+        .amenaza-alta {
+            background-color: #f8d7da !important;
+            color: #721c24 !important;
+            font-weight: bold;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .btn-mitigar {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .panel-estadisticas {
+            background-color: #e2e3e5;
+            padding: 12px;
+            max-width: 676px;
+            margin-top: 15px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Control de Infiltraciones (CyberSecurity)</h1>
+
+    <form id="form-infiltracion">
+        <label for="input-ip">Dirección IP Sospechosa:</label><br>
+        <input type="text" id="input-ip" placeholder="Ej. 192.168.4.12" required><br><br>
+
+        <label for="select-severidad">Nivel de Severidad:</label><br>
+        <select id="select-severidad">
+            <option value="Baja">Baja</option>
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+        </select><br><br>
+
+        <fieldset>
+            <legend>Puertos Afectados (Máx 2)</legend>
+            <label><input type="checkbox" name="puertos[]" value="22"> 22 (SSH)</label>
+            <label><input type="checkbox" name="puertos[]" value="80"> 80 (HTTP)</label>
+            <label><input type="checkbox" name="puertos[]" value="443"> 443 (HTTPS)</label>
+        </fieldset><br>
+
+        <button type="submit">Enviar Reporte de Infiltración (POST)</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>IP Atacante</th>
+                <th>Severidad</th>
+                <th>Puertos</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+    </table>
+
+    <div id="estadisticas" class="panel-estadisticas"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let registroAtaques = [];
+
+            $.get('incidentes.json', function (response) {
+                registroAtaques = response;
+                renderizarPanel();
+            }).fail(function () {
+                console.error("No se pudo cargar el histórico de incidentes.");
+            });
+
+            $('input[name="puertos[]"]').change(function () {
+                let marcados = $('input[name="puertos[]"]:checked').length;
+                if (marcados >= 2) {
+                    $('input[name="puertos[]"]').not(':checked').prop('disabled', true);
+                } else {
+                    $('input[name="puertos[]"]').prop('disabled', false);
+                }
+            });
+
+            $('#form-infiltracion').submit(function (event) {
+                event.preventDefault();
+
+                let ipVal = $('#input-ip').val().trim();
+                let severidadVal = $('#select-severidad').val();
+
+                // Mapeamos los checkboxes pasándolos a números enteros
+                let puertosVal = $('input[name="puertos[]"]').filter(':checked').map(function () {
+                    return parseInt($(this).val());
+                }).get();
+
+                if (ipVal === "") {
+                    alert("La dirección IP es obligatoria.");
+                    return;
+                }
+
+                let nuevoIncidente = {
+                    ip: ipVal,
+                    severidad: severidadVal,
+                    puertos: puertosVal
+                };
+
+                $.ajax({
+                    url: 'https://jsonplaceholder.typicode.com/posts',
+                    type: 'POST',
+                    data: JSON.stringify(nuevoIncidente),
+                    contentType: 'application/json; charset=UTF-8',
+                    success: function (response) {
+                        console.log("¡Servidor respondió con éxito (POST)! Objeto creado:", response);
+
+                        registroAtaques.push(nuevoIncidente);
+
+                        renderizarPanel();
+
+                        $('#form-infiltracion')[0].reset();
+                        $('input[name="puertos[]"]').prop('disabled', false);
+                    },
+                    error: function () {
+                        alert("Error crítico: No se pudo subir el reporte al servidor central.");
+                    }
+                });
+            });
+
+            function renderizarPanel() {
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                let totalAtaques = registroAtaques.length;
+                let ataquesAltos = 0;
+
+                $.each(registroAtaques, function (index, item) {
+                    let fila = $('<tr>').attr('data-indice', index);
+
+                    if (item.severidad === "Alta") {
+                        fila.addClass('amenaza-alta');
+                        ataquesAltos++;
+                    }
+
+                    let puertosTexto = item.puertos.length > 0 ? item.puertos.join(', ') : '-';
+                    let botonMitigar = $('<button class="btn-mitigar">').text('Mitigar');
+
+                    fila.append(
+                        $('<td>').text(item.ip),
+                        $('<td>').text(item.severidad),
+                        $('<td>').text(puertosTexto),
+                        $('<td>').append(botonMitigar)
+                    );
+
+                    tbody.append(fila);
+                });
+
+                let porcentajeAlta = totalAtaques > 0 ? Math.round((ataquesAltos / totalAtaques) * 100) : 0;
+
+                $('#estadisticas').html(
+                    "Total Amenazas Detectadas: " + totalAtaques + " | " +
+                    "Porcentaje de Riesgo Crítico (Alta): " + porcentajeAlta + "%"
+                );
+            }
+
+            $('#cuerpo-tabla').on('click', '.btn-mitigar', function () {
+                let fila = $(this).closest('tr');
+                let indice = fila.data('indice');
+
+                registroAtaques.splice(indice, 1);
+                renderizarPanel();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

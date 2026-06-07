@@ -1,0 +1,17 @@
+[
+    {
+        "cliente": "Marta Gómez",
+        "noches": 3,
+        "extras": ["Desayuno", "Parking"]
+    },
+    {
+        "cliente": "Pedro Asenjo",
+        "noches": 1,
+        "extras": ["Mascota"]
+    },
+    {
+        "cliente": "Lucía Torres",
+        "noches": 5,
+        "extras": ["Desayuno", "Mascota"]
+    }
+]

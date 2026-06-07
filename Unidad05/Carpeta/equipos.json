@@ -1,0 +1,17 @@
+[
+    {
+        "nombre": "Giants Gaming",
+        "jugadores": 5,
+        "juegos": ["League of Legends", "Valorant"]
+    },
+    {
+        "nombre": "KOI Academy",
+        "jugadores": 6,
+        "juegos": ["Valorant"]
+    },
+    {
+        "nombre": "Team Heretics",
+        "jugadores": 4,
+        "juegos": ["CS2"]
+    }
+]
