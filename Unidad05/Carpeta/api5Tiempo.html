@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 5: El Tiempo Local</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .modo-dia {
+            background-color: #f0f8ff;
+            color: #333333;
+        }
+
+        .modo-noche {
+            background-color: #2c3e50;
+            color: #ffffff;
+        }
+
+        .tiempo-bloque {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px;
+            border-radius: 8px;
+            display: none;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="modo-dia">
+    <h1>Ejercicio 5: El Tiempo Local</h1>
+
+    <form id="form-clima">
+        <label for="input-ciudad">Introduce el nombre de una ciudad:</label><br><br>
+        <input type="text" id="input-ciudad" placeholder="Ej: Madrid, Tokio, Paris" required>
+        <button type="submit">Consultar Clima</button>
+    </form>
+
+    <div id="tarjeta-clima" class="tiempo-bloque">
+        <h2 id="clima-ciudad"></h2>
+        <p><strong>Temperatura actual:</strong> <span id="clima-temp"></span>°C</p>
+        <p><strong>Velocidad del viento:</strong> <span id="clima-viento"></span> km/h</p>
+        <p><strong>Momento del día:</strong> <span id="clima-momento"></span></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#form-clima').submit(function (event) {
+                event.preventDefault();
+
+                let ciudadBuscada = $('#input-ciudad').val().trim();
+
+                let urlGeo = "https://geocoding-api.open-meteo.com/v1/search?name=" + ciudadBuscada;
+
+                console.log("1. Buscando coordenadas para:", ciudadBuscada);
+
+                $.ajax({
+                    url: urlGeo,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (responseGeo) {
+                        if (responseGeo.results && responseGeo.results.length > 0) {
+
+                            let primerResultado = responseGeo.results[0];
+                            let lat = primerResultado.latitude;
+                            let lon = primerResultado.longitude;
+                            let nombreOficial = primerResultado.name + " (" + primerResultado.country + ")";
+
+                            console.log("Coordenadas encontradas:", lat, lon);
+
+                            let urlClima = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current_weather=true";
+
+                            console.log("2. Buscando el clima en tiempo real...");
+
+                            $.ajax({
+                                url: urlClima,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (responseClima) {
+                                    console.log("Datos del clima recibidos:", responseClima);
+
+                                    let datosClima = responseClima.current_weather;
+
+                                    $('#clima-ciudad').text(nombreOficial);
+                                    $('#clima-temp').text(datosClima.temperature);
+                                    $('#clima-viento').text(datosClima.windspeed);
+
+                                    if (datosClima.is_day === 1) {
+                                        $('body').removeClass('modo-noche').addClass('modo-dia');
+                                        $('#clima-momento').text("☀️ De día");
+                                    } else {
+                                        $('body').removeClass('modo-dia').addClass('modo-noche');
+                                        $('#clima-momento').text("🌙 De noche");
+                                    }
+
+                                    $('#tarjeta-clima').show();
+                                },
+                                error: function () {
+                                    alert("Error al obtener el clima de la ciudad.");
+                                }
+                            });
+
+                        } else {
+                            alert("No se pudo encontrar ninguna ciudad con ese nombre.");
+                        }
+                    },
+                    error: function () {
+                        alert("Error en el servidor de geocodificación.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

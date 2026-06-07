@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 6: Chistes de Chuck Norris</title>
+    <style>
+        body {
+            margin-left: 30px;
+            max-width: 600px;
+        }
+
+        .chiste-contenedor {
+            margin-top: 20px;
+            padding: 15px;
+            border-left: 5px solid #ff9900;
+            background-color: #f9f9f9;
+            display: none;
+        }
+
+        #texto-chiste {
+            font-size: 1.4rem;
+            font-style: italic;
+            color: #222;
+            line-height: 1.5;
+        }
+
+        .historial-contenedor {
+            margin-top: 40px;
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+        }
+
+        .historial-item {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 6: Generador de Chistes</h1>
+
+    <label for="selector-categorias">Elige una temática:</label><br>
+    <select id="selector-categorias">
+        <option value="">Cargando temáticas...</option>
+    </select>
+
+    <button id="btn-chiste" style="padding: 5px 15px; margin-left: 10px;">Cuéntame un chiste</button>
+
+    <div id="zona-chiste" class="chiste-contenedor">
+        <h3>Chuck Norris dice:</h3>
+        <p id="texto-chiste"></p>
+    </div>
+
+    <div class="historial-contenedor">
+        <h3>Historial (Últimos 5 chistes):</h3>
+        <div id="lista-historial">
+            <p id="msg-vacio" style="color: #999;">Aún no has pedido ningún chiste.</p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "https://api.chucknorris.io/jokes/categories",
+                type: "GET",
+                dataType: "json",
+                success: function (responseCategorias) {
+                    let selector = $('#selector-categorias');
+                    selector.empty();
+                    selector.append('<option value="">Elige una categoría</option>');
+
+                    $.each(responseCategorias, function (index, categoria) {
+                        let opcion = $('<option>').val(categoria).text(categoria.toUpperCase());
+                        selector.append(opcion);
+                    });
+                },
+                error: function () {
+                    $('#selector-categorias').html('<option value="">Error al cargar categorías</option>');
+                }
+            });
+
+            $('#btn-chiste').click(function () {
+                let categoriaElegida = $('#selector-categorias').val();
+
+                if (categoriaElegida === "") {
+                    alert("Por favor, selecciona una temática.");
+                    return;
+                }
+
+                let urlApi = "https://api.chucknorris.io/jokes/random?category=" + categoriaElegida;
+
+                console.log("Pidiendo chiste de la categoría:", categoriaElegida);
+
+                $.ajax({
+                    url: urlApi,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (responseChiste) {
+                        let nuevoChiste = responseChiste.value;
+
+                        $('#texto-chiste').text(nuevoChiste);
+                        $('#zona-chiste').show();
+
+                        $('#msg-vacio').hide();
+
+                        let itemHistorial = $('<div class="historial-item">').text("• " + nuevoChiste);
+
+                        $('#lista-historial').prepend(itemHistorial);
+
+                        let totalChistesGuardados = $('#lista-historial .historial-item').length;
+
+                        if (totalChistesGuardados > 5) {
+                            $('#lista-historial .historial-item:last').remove();
+                        }
+                    },
+                    error: function () {
+                        alert("Hubo un problema al traer el chiste de Chuck Norris.");
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+
+</html>

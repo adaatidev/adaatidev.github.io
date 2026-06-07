@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 1: Perros</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+
+        #foto-perro {
+            max-width: 400px;
+            display: block;
+            margin-top: 15px;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 1: Perros</h1>
+
+    <button id="btn-aleatorio">Aleatorio</button>
+
+    <select id="selector-razas">
+        <option value="">Cargando razas...</option>
+    </select>
+
+    <img id="foto-perro" src="" alt="Foto del perro">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "https://dog.ceo/api/breeds/list/all",
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                    let selector = $('#selector-razas');
+                    selector.empty(); // Borra el "Cargando..."
+                    selector.append('<option value="">Selecciona una raza</option>');
+
+                    // Recorre el objeto de razas
+                    $.each(response.message, function (raza, subrazas) {
+                        if (subrazas.length === 0) {
+                            selector.append($('<option>').val(raza).text(raza));
+                        } else {
+                            // Si tiene subrazas, recorre sus subrazas
+                            $.each(subrazas, function (index, subraza) {
+                                // Guarda la ruta combinada
+                                let rutaCombinada = raza + "/" + subraza;
+                                selector.append($('<option>').val(rutaCombinada).text(subraza + " " + raza));
+                            });
+                        }
+                    });
+                }
+            });
+
+
+            $('#btn-aleatorio').click(function () {
+                $.ajax({
+                    url: "https://dog.ceo/api/breeds/image/random",
+                    type: "GET",
+                    dataType: "json",
+                    success: function (response) {
+                        // Mete la URL de la foto en el src de la etiqueta <img>
+                        $('#foto-perro').attr('src', response.message);
+                    }
+                });
+            });
+
+
+            $('#selector-razas').change(function () {
+                let razaSeleccionada = $(this).val();
+
+                if (razaSeleccionada !== "") {
+                    let urlFinal = "https://dog.ceo/api/breed/" + razaSeleccionada + "/images/random";
+
+                    $.ajax({
+                        url: urlFinal,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (response) {
+                            $('#foto-perro').attr('src', response.message);
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>

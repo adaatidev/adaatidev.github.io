@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Control de Acceso a Parking</title>
+    <style>
+        body {
+            margin: 30px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        /* Contenedor del Formulario */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            margin-bottom: 30px;
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        .campo label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilos de la Tabla */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 10px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #343a40;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* REQUISITO: Estilos según Disponibilidad (Ocupada vs Vacía) */
+        .plaza-ocupada {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        /* Botón Verde "L" para liberar */
+        .btn-liberar {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-liberar:hover {
+            background-color: #218838;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Control de Acceso a Parking</h1>
+
+    <form id="form-parking">
+        <div class="campo">
+            <label for="input-matricula">Matrícula:</label>
+            <input type="text" id="input-matricula" placeholder="Ej. 1234ABC">
+        </div>
+        <div class="campo">
+            <label for="input-plaza">Número de Plaza (1 al 20):</label>
+            <input type="number" id="input-plaza" min="1" max="20" placeholder="Introduce el número de plaza">
+        </div>
+        <button type="submit">Aparcar Vehículo</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nº Plaza</th>
+                <th>Matrícula</th>
+                <th class="text-center">Salida</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let plazasParking = new Array(20).fill(null);
+
+            function actualizarTablaDOM() {
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                $.each(plazasParking, function (index, matricula) {
+                    let numPlazaDisplay = index + 1;
+
+                    let fila = $('<tr>');
+                    let tdPlaza = $('<td>').text("Plaza " + numPlazaDisplay);
+                    let tdMatricula = $('<td>');
+                    let tdSalida = $('<td class="text-center">');
+
+                    if (matricula !== null) {
+                        tdMatricula.text(matricula);
+                        fila.addClass('plaza-ocupada');
+
+                        let botonL = $('<button class="btn-liberar">').text('L');
+                        botonL.data('index-plaza', index);
+                        tdSalida.append(botonL);
+                    } else {
+                        tdMatricula.text('-');
+                        tdSalida.text('-');
+                    }
+
+                    fila.append(tdPlaza, tdMatricula, tdSalida);
+                    tbody.append(fila);
+                });
+            }
+
+            $('#form-parking').submit(function (event) {
+                event.preventDefault();
+
+                let matricula = $('#input-matricula').val().trim().toUpperCase();
+                let plazaTexto = $('#input-plaza').val().trim();
+
+                if (matricula === "") {
+                    alert("Error: El campo 'Matrícula' es obligatorio.");
+                    return;
+                }
+                if (plazaTexto === "") {
+                    alert("Error: Debe asignar un 'Número de Plaza'.");
+                    return;
+                }
+
+                let numPlaza = parseInt(plazaTexto);
+
+                if (numPlaza < 1 || numPlaza > 20) {
+                    alert("Error: El número de plaza debe estar comprendido entre el 1 y el 20.");
+                    return;
+                }
+
+                let indiceArray = numPlaza - 1;
+
+                if (plazasParking[indiceArray] !== null) {
+                    alert("Error: ¡Aviso! La plaza " + numPlaza + " ya se encuentra ocupada.");
+                    return;
+                }
+
+                plazasParking[indiceArray] = matricula;
+
+                actualizarTablaDOM();
+                this.reset();
+            });
+
+            $('#cuerpo-tabla').on('click', '.btn-liberar', function () {
+                let indiceALiberar = $(this).data('index-plaza');
+
+                plazasParking[indiceALiberar] = null;
+
+                actualizarTablaDOM();
+            });
+
+            actualizarTablaDOM();
+
+        });
+    </script>
+</body>
+
+</html>

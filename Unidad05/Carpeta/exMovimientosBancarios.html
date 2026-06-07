@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor de Movimientos Bancarios</title>
+    <style>
+        body {
+            margin: 30px;
+        }
+
+        .saldo-positivo {
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .saldo-negativo {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .saldo-cero {
+            color: #555;
+            font-weight: normal;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gestor de Movimientos Bancarios</h1>
+    <h2>Ada</h2>
+
+    <form id="form-movimiento">
+        <div class="campo">
+            <label for="input-concepto">Concepto:</label>
+            <input type="text" id="input-concepto">
+        </div>
+        <div class="campo">
+            <label for="input-cantidad">Cantidad (€):</label>
+            <input type="number" id="input-cantidad" step="0.01" min="0.01" placeholder="0.00">
+        </div>
+        <div class="campo">
+            <label>Tipo de movimiento:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="tipo" value="ingreso" checked> Ingreso</label>
+                <label><input type="radio" name="tipo" value="gasto"> Gasto</label>
+            </div>
+        </div>
+        <button type="submit">Añadir movimiento</button>
+    </form>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Concepto</th>
+                <th class="text-right">Ingreso</th>
+                <th class="text-right">Gasto</th>
+                <th class="text-right">Suma (Saldo)</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let historialMovimientos = [];
+
+            function renderizarTabla() {
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                let saldoAcumulado = 0;
+
+                $.each(historialMovimientos, function (index, movimiento) {
+                    let fila = $('<tr>');
+
+                    fila.attr('data-indice', index);
+
+                    let tdConcepto = $('<td>').text(movimiento.concepto);
+                    let tdIngreso = $('<td class="text-right">');
+                    let tdGasto = $('<td class="text-right">');
+                    let tdSuma = $('<td class="text-right">');
+
+                    let tdAcciones = $('<td class="text-center">');
+                    let botonEliminar = $('<button class="btn-eliminar">').text('Eliminar');
+                    tdAcciones.append(botonEliminar);
+
+                    if (movimiento.tipo === 'ingreso') {
+                        tdIngreso.text(movimiento.cantidad.toFixed(2) + ' €');
+                        tdGasto.text('-');
+                        saldoAcumulado += movimiento.cantidad;
+                    } else {
+                        tdIngreso.text('-');
+                        tdGasto.text(movimiento.cantidad.toFixed(2) + ' €');
+                        saldoAcumulado -= movimiento.cantidad;
+                    }
+
+                    tdSuma.text(saldoAcumulado.toFixed(2) + ' €');
+
+                    if (saldoAcumulado > 0) {
+                        tdSuma.addClass('saldo-positivo');
+                    } else if (saldoAcumulado < 0) {
+                        tdSuma.addClass('saldo-negativo');
+                    } else {
+                        tdSuma.addClass('saldo-cero');
+                    }
+
+                    fila.append(tdConcepto, tdIngreso, tdGasto, tdSuma, tdAcciones);
+                    tbody.append(fila);
+                });
+            }
+
+            $('#form-movimiento').submit(function (event) {
+                event.preventDefault();
+
+                let concepto = $('#input-concepto').val().trim();
+                let cantidadTexto = $('#input-cantidad').val().trim();
+                let tipo = $('input[name="tipo"]:checked').val();
+
+                if (concepto === "") {
+                    alert("El campo 'Concepto' es obligatorio.");
+                    return;
+                }
+                if (cantidadTexto === "") {
+                    alert("El campo 'Cantidad' es obligatorio.");
+                    return;
+                }
+
+                let cantidad = parseFloat(cantidadTexto);
+
+                let nuevoMovimiento = {
+                    concepto: concepto,
+                    cantidad: cantidad,
+                    tipo: tipo
+                };
+
+                historialMovimientos.push(nuevoMovimiento);
+
+                renderizarTabla();
+
+                this.reset();
+            });
+
+            $('#cuerpo-tabla').on('click', '.btn-eliminar', function () {
+                let filaPadre = $(this).closest('tr');
+                let indiceABorrar = filaPadre.data('indice');
+
+                historialMovimientos.splice(indiceABorrar, 1);
+
+                renderizarTabla();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

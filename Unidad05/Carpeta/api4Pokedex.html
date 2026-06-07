@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 4: Pokédex Básica</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+
+        .pokedex-bloque {
+            margin-top: 20px;
+            border: 3px solid #ff0000;
+            padding: 20px;
+            max-width: 400px;
+            border-radius: 10px;
+            display: none;
+            background-color: #fcfcfc;
+            text-align: center;
+        }
+
+        #foto-pokemon {
+            width: 150px;
+            height: 150px;
+            background-color: #e0f7fa;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+        }
+
+        .controles {
+            margin-top: 15px;
+        }
+
+        .btn-nav {
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 4: Pokédex Básica</h1>
+
+    <form id="form-pokedex">
+        <label for="input-busqueda">Introduce el nombre o número de un Pokémon:</label><br><br>
+        <input type="text" id="input-busqueda" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div id="pokedex-tarjeta" class="pokedex-bloque">
+        <h2 id="poke-nombre"></h2>
+
+        <img id="foto-pokemon" src="" alt="Imagen del Pokémon">
+
+        <h4>Tipo(s):</h4>
+        <ul id="poke-tipos" style="list-style-type: none; padding: 0; font-weight: bold;"></ul>
+
+        <div class="controles">
+            <button id="btn-anterior" class="btn-nav">← Anterior</button>
+            <button id="btn-siguiente" class="btn-nav">Siguiente →</button>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let pokemonIdActual = 0;
+
+            function buscarPokemon(parametro) {
+                let busquedaLimpia = parametro.toString().toLowerCase().trim();
+                let urlApi = "https://pokeapi.co/api/v2/pokemon/" + busquedaLimpia;
+
+                $.ajax({
+                    url: urlApi,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (response) {
+                        console.log("Datos del Pokémon recibidos:", response);
+
+                        pokemonIdActual = response.id;
+
+                        let nombreMayusculas = response.name.toUpperCase();
+                        $('#poke-nombre').text("#" + pokemonIdActual + " - " + nombreMayusculas);
+
+                        $('#foto-pokemon').attr('src', response.sprites.front_default);
+
+                        $('#poke-tipos').empty();
+                        $.each(response.types, function (index, item) {
+                            let tipoHtml = $('<li>').text(item.type.name.toUpperCase());
+                            $('#poke-tipos').append(tipoHtml);
+                        });
+
+                        if (pokemonIdActual <= 1) {
+                            $('#btn-anterior').prop('disabled', true);
+                        } else {
+                            $('#btn-anterior').prop('disabled', false);
+                        }
+
+                        $('#pokedex-tarjeta').show();
+                    },
+                    error: function () {
+                        alert("¡Pokémon no encontrado! Revisa que esté bien escrito.");
+                    }
+                });
+            }
+
+            $('#form-pokedex').submit(function (event) {
+                event.preventDefault();
+                let valorBuscado = $('#input-busqueda').val();
+                buscarPokemon(valorBuscado);
+            });
+
+            $('#btn-anterior').click(function () {
+                let idAnterior = pokemonIdActual - 1;
+                if (idAnterior > 0) {
+                    buscarPokemon(idAnterior);
+                    $('#input-busqueda').val(idAnterior);
+                }
+            });
+
+            $('#btn-siguiente').click(function () {
+                let idSiguiente = pokemonIdActual + 1;
+                buscarPokemon(idSiguiente);
+                $('#input-busqueda').val(idSiguiente);
+            });
+
+        });
+    </script>
+</body>
+
+</html>

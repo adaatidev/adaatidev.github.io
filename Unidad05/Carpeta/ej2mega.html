@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 2: MEGARETO</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 2: MEGARETO</h1>
+
+    <form id="formulario-persona">
+        <h3>Añadir Datos al Array</h3>
+        <div class="campo"><label>Nombre:</label><input type="text" id="input-nombre" required></div>
+        <div class="campo"><label>Apellidos:</label><input type="text" id="input-apellidos" required></div>
+        <div class="campo"><label>Edad:</label><input type="number" id="input-edad" required></div>
+        <div class="campo"><label>Ciudad:</label><input type="text" id="input-ciudad" required></div>
+        <button type="submit">Guardar y Renderizar</button>
+    </form>
+
+    <table id="tabla-personas" border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Edad</th>
+                <th>Ciudad</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let listaPersonas = [];
+
+            function generaTR(persona, indice) {
+                let fila = $('<tr>');
+
+                fila.attr('data-indice', indice);
+
+                let tdNombre = $('<td>').text(persona.nombre);
+                let tdApellidos = $('<td>').text(persona.apellidos);
+                let tdEdad = $('<td>').text(persona.edad);
+                let tdCiudad = $('<td>').text(persona.ciudad);
+
+                fila.append(tdNombre, tdApellidos, tdEdad, tdCiudad);
+                return fila;
+            }
+
+            function generaTabla(jsonTexto) {
+                let objetoRecuperado = JSON.parse(jsonTexto);
+
+                let tbody = $('#cuerpo-tabla');
+                tbody.empty();
+
+                $.each(objetoRecuperado, function (index, persona) {
+                    let nuevaFila = generaTR(persona, index);
+
+                    tbody.append(nuevaFila);
+                });
+            }
+
+            $('#formulario-persona').submit(function (event) {
+                event.preventDefault();
+
+                let nuevaPersona = {
+                    nombre: $('#input-nombre').val().trim(),
+                    apellidos: $('#input-apellidos').val().trim(),
+                    edad: parseInt($('#input-edad').val().trim()),
+                    ciudad: $('#input-ciudad').val().trim()
+                };
+
+                listaPersonas.push(nuevaPersona);
+
+                let listaSerializada = JSON.stringify(listaPersonas);
+                console.log("Array Serializado enviado a la función:", listaSerializada);
+
+                generaTabla(listaSerializada);
+
+                this.reset();
+            });
+
+            $('#cuerpo-tabla').on('click', 'tr', function () {
+                let indiceABorrar = $(this).data('indice');
+
+                console.log("Hiciste clic en la fila con el índice del Array:", indiceABorrar);
+
+                listaPersonas.splice(indiceABorrar, 1);
+
+                let listaActualizadaSerializada = JSON.stringify(listaPersonas);
+                console.log("Array tras aplicar splice (Serializado):", listaActualizadaSerializada);
+
+                generaTabla(listaActualizadaSerializada);
+            });
+
+        });
+    </script>
+</body>
+
+</html>

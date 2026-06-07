@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 1: RETO - Serialización</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 1: Consulta de Usuarios</h1>
+
+    <button id="btn-procesar">Pulsa y observa la consola</button>
+
+    <div id="pantalla-resultados" style="display: none;">
+
+        <h3>1. Resultado de la Serialización (Objeto a Texto JSON):</h3>
+        <div class="bloque-resultado">
+            <p class="consola-simulada" id="txt-json-serializado"></p>
+        </div>
+
+        <h3>2. Resultado de la Deserialización (Texto JSON a campos individuales):</h3>
+        <div class="bloque-resultado">
+            <p>Recuperado:
+                nombre: <span id="res-nombre"></span>,
+                apellidos: <span id="res-apellidos"></span>,
+                edad: <span id="res-edad"></span>,
+                ciudad: <span id="res-ciudad"></span>
+            </p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let personaOriginal = {
+                nombre: "Alberto",
+                apellidos: "Ramos",
+                edad: 26,
+                ciudad: "Granada"
+            };
+
+            function serializarObjeto(objetoJS) {
+                let textoJSON = JSON.stringify(objetoJS);
+                return textoJSON;
+            }
+
+            function deserializarTexto(textoJSON) {
+                let objetoJS = JSON.parse(textoJSON);
+                return objetoJS;
+            }
+
+            $('#btn-procesar').click(function () {
+
+                let stringJsonResultante = serializarObjeto(personaOriginal);
+
+                console.log("--- PASO 1: OBJETO SERIALIZADO A JSON ---");
+                console.log(stringJsonResultante);
+
+                $('#txt-json-serializado').text(stringJsonResultante);
+
+                let objetoRecuperado = deserializarTexto(stringJsonResultante);
+
+                console.log("--- PASO 2: TEXTO JSON DESERIALIZADO A OBJETO ---");
+                console.log("Objeto recuperado listo para usar:", objetoRecuperado);
+                console.log("Nombre:", objetoRecuperado.nombre);
+
+                $('#res-nombre').text(objetoRecuperado.nombre);
+                $('#res-apellidos').text(objetoRecuperado.apellidos);
+                $('#res-edad').text(objetoRecuperado.edad);
+                $('#res-ciudad').text(objetoRecuperado.ciudad);
+
+                $('#pantalla-resultados').fadeIn();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

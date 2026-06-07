@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>El Juego del Ahorcado</title>
+    <style>
+        body {
+            margin: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>El Juego del Ahorcado</h1>
+
+    <div id="contenedor-palabra">_ _ _ _</div>
+
+    <div class="area-juego">
+        <input type="text" id="input-letra" maxlength="1" autofocus autocomplete="off">
+        <button id="btn-comprobar">Probar letra</button>
+        <div id="zona-mensajes" class="mensaje-exito"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            const bancoPalabras = ["javascript", "programacion", "desarrollo", "ahorcado", "frontend", "jquery"];
+
+            let palabraSecreta = [];
+            let palabraProgreso = [];
+
+            function iniciarPartida() {
+                let indiceAleatorio = Math.floor(Math.random() * bancoPalabras.length);
+                let palabraElegida = bancoPalabras[indiceAleatorio];
+
+                palabraSecreta = palabraElegida.split('');
+
+                palabraProgreso = [];
+                $.each(palabraSecreta, function () {
+                    palabraProgreso.push('_');
+                });
+
+                $('#zona-mensajes').text('');
+                $('#input-letra').val('').prop('disabled', false);
+                $('#btn-comprobar').prop('disabled', false);
+
+                actualizarPantallaDOM();
+            }
+
+            function actualizarPantallaDOM() {
+                $('#contenedor-palabra').text(palabraProgreso.join(' '));
+            }
+
+            function procesarIntento() {
+                let letra = $('#input-letra').val().trim().toLowerCase();
+
+                if (letra === "") {
+                    alert("Por favor, introduce una letra primero.");
+                    return;
+                }
+
+                let aciertoEncontrado = false;
+
+                $.each(palabraSecreta, function (index, letraReal) {
+                    if (letraReal === letra) {
+                        palabraProgreso[index] = letra;
+                        aciertoEncontrado = true;
+                    }
+                });
+
+                if (aciertoEncontrado) {
+                    actualizarPantallaDOM();
+                }
+
+                $('#input-letra').val('').focus();
+
+                if (palabraProgreso.indexOf('_') === -1) {
+                    $('#input-letra').prop('disabled', true);
+                    $('#btn-comprobar').prop('disabled', true);
+
+                    $('#zona-mensajes').text("¡Felicidades, has ganado!");
+
+                    setTimeout(function () {
+                        iniciarPartida();
+                    }, 2500);
+                }
+            }
+
+            $('#btn-comprobar').click(function () {
+                procesarIntento();
+            });
+
+            $('#input-letra').keypress(function (event) {
+                if (event.which === 13) {
+                    procesarIntento();
+                }
+            });
+
+            iniciarPartida();
+
+        });
+    </script>
+</body>
+
+</html>

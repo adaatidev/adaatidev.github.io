@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejemplo 3: Listas</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 3: Listas</h1>
+
+    <form id="formulario-persona">
+        <div class="campo">
+            <label for="input-nombre">Nombre:</label>
+            <input type="text" id="input-nombre" required>
+        </div>
+        <div class="campo">
+            <label for="input-apellidos">Apellidos:</label>
+            <input type="text" id="input-apellidos" required>
+        </div>
+        <div class="campo">
+            <label for="input-edad">Edad:</label>
+            <input type="number" id="input-edad" required>
+        </div>
+        <div class="campo">
+            <label for="input-ciudad">Ciudad:</label>
+            <input type="text" id="input-ciudad" required>
+        </div>
+
+        <fieldset>
+            <legend>Hobbies</legend>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="hobbies[]" value="Deporte"> Deporte</label>
+                <label><input type="checkbox" name="hobbies[]" value="Lectura"> Lectura</label>
+                <label><input type="checkbox" name="hobbies[]" value="Música"> Música</label>
+                <label><input type="checkbox" name="hobbies[]" value="Juegos"> Juegos</label>
+                <label><input type="checkbox" name="hobbies[]" value="Cine"> Cine</label>
+                <label><input type="checkbox" name="hobbies[]" value="Teatro"> Teatro</label>
+                <label><input type="checkbox" name="hobbies[]" value="Coleccionismo"> Coleccionismo</label>
+                <label><input type="checkbox" name="hobbies[]" value="Bricolaje"> Bricolaje</label>
+                <label><input type="checkbox" name="hobbies[]" value="Cosplay"> Cosplay</label>
+            </div>
+        </fieldset>
+
+        <button type="submit">Pulsa para insertar</button>
+    </form>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Edad</th>
+                <th>Ciudad</th>
+                <th>Hobbies</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+            <tr>
+                <td>Alberto</td>
+                <td>Ramos</td>
+                <td>26</td>
+                <td>Granada</td>
+                <td>Música, Cine</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            function crearFilaPersona(nombre, apellidos, edad, ciudad, listaHobbies) {
+                let fila = $('<tr>');
+
+                let tdNombre = $('<td>').text(nombre);
+                let tdApellidos = $('<td>').text(apellidos);
+                let tdEdad = $('<td>').text(edad);
+                let tdCiudad = $('<td>').text(ciudad);
+
+                // Si la persona no marcó ningún hobby, muestra un guion descriptivo
+                let textoHobbies = listaHobbies.length > 0 ? listaHobbies.join(', ') : '-';
+                let tdHobbies = $('<td>').text(textoHobbies);
+
+                // Adjuntamos todas las celdas (incluida la nueva) al TR
+                fila.append(tdNombre, tdApellidos, tdEdad, tdCiudad, tdHobbies);
+
+                return fila;
+            }
+
+            $('#formulario-persona').submit(function (event) {
+                event.preventDefault();
+
+                let nombre = $('#input-nombre').val().trim();
+                let apellidos = $('#input-apellidos').val().trim();
+                let edad = $('#input-edad').val().trim();
+                let ciudad = $('#input-ciudad').val().trim();
+
+                let hobbiesSeleccionados = $('input[name="hobbies[]"]')
+                    .filter(':checked')
+                    .map(function () {
+                        return $(this).val();
+                    })
+                    .get();
+
+                console.log("Hobbies capturados en formato Array:", hobbiesSeleccionados);
+
+                let nuevaFilaHtml = crearFilaPersona(nombre, apellidos, edad, ciudad, hobbiesSeleccionados);
+
+                $('#cuerpo-tabla').append(nuevaFilaHtml);
+
+                this.reset();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

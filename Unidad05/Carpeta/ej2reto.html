@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 2: RETO Completo</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 2: RETO</h1>
+
+    <form id="formulario-persona" novalidate>
+        <h3>Añadir Nueva Persona</h3>
+        <div class="campo"><label>Nombre:</label><input type="text" id="input-nombre"></div>
+        <div class="campo"><label>Apellidos:</label><input type="text" id="input-apellidos"></div>
+        <div class="campo"><label>Edad:</label><input type="number" id="input-edad"></div>
+        <div class="campo"><label>Ciudad:</label><input type="text" id="input-ciudad"></div>
+        <button type="submit">Agregar a la Tabla</button>
+    </form>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Edad</th>
+                <th>Ciudad</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+            <tr class="fila-usuario">
+                <td>Alberto</td>
+                <td>Ramos</td>
+                <td class="celda-edad-valor">26</td>
+                <td>Granada</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="estadisticas-bloque">
+        <h3>Estadísticas de Edad</h3>
+        <div class="grid-estat">
+            <div>Suma = <span id="stat-suma">0</span></div>
+            <div>Máximo = <span id="stat-max">0</span></div>
+        </div>
+        <br>
+        <div class="grid-estat">
+            <div>Media = <span id="stat-media">0</span></div>
+            <div>Mínimo = <span id="stat-min">0</span></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            calcularEstadisticas();
+
+            function calcularEstadisticas() {
+                let edades = [];
+
+                $('.celda-edad-valor').each(function () {
+                    let valor = parseInt($(this).text());
+                    if (!isNaN(valor)) {
+                        edades.push(valor);
+                    }
+                });
+
+                if (edades.length === 0) {
+                    $('#stat-suma').text(0); $('#stat-media').text(0);
+                    $('#stat-max').text(0); $('#stat-min').text(0);
+                    return;
+                }
+
+                let suma = 0;
+                $.each(edades, function (index, numero) {
+                    suma += numero;
+                });
+
+                let media = (suma / edades.length).toFixed(1); // Redondea a 1 decimal
+                let maximo = Math.max(...edades);
+                let minimo = Math.min(...edades);
+
+                $('#stat-suma').text(suma);
+                $('#stat-media').text(media);
+                $('#stat-max').text(maximo);
+                $('#stat-min').text(minimo);
+
+                console.log(`Estadísticas actuales -> Suma: ${suma}, Media: ${media}, Máx: ${maximo}, Mín: ${minimo}`);
+            }
+
+            function crearFilaPersona(nombre, apellidos, edad, ciudad) {
+                let fila = $('<tr class="fila-usuario">');
+
+                let tdNombre = $('<td>').text(nombre);
+                let tdApellidos = $('<td>').text(apellidos);
+
+                let tdEdad = $('<td class="celda-edad-valor">').text(edad);
+                let tdCiudad = $('<td>').text(ciudad);
+
+                fila.append(tdNombre, tdApellidos, tdEdad, tdCiudad);
+                return fila;
+            }
+
+            $('#formulario-persona').submit(function (event) {
+                event.preventDefault();
+
+                let nombre = $('#input-nombre').val().trim();
+                let apellidos = $('#input-apellidos').val().trim();
+                let edad = $('#input-edad').val().trim();
+                let ciudad = $('#input-ciudad').val().trim();
+
+                if (nombre === "") { 
+                    alert("El campo Nombre es obligatorio."); 
+                    return; 
+                }
+
+                if (apellidos === "") { 
+                    alert("El campo Apellidos es obligatorio."); 
+                    return; 
+                }
+
+                if (edad === "") { 
+                    alert("El campo Edad es obligatorio."); 
+                    return; 
+                }
+
+                if (ciudad === "") { 
+                    alert("El campo Ciudad es obligatorio."); 
+                    return; 
+                }
+
+                let nuevaFila = crearFilaPersona(nombre, apellidos, edad, ciudad);
+                $('#cuerpo-tabla').append(nuevaFila);
+
+                calcularEstadisticas();
+
+                this.reset();
+            });
+
+            $('#cuerpo-tabla').on('click', '.fila-usuario', function () {
+                $(this).remove();
+
+                calcularEstadisticas();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

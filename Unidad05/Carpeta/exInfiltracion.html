@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,15 +9,17 @@
         #mensaje-exito {
             color: green;
         }
+
         body {
             margin-left: 30px;
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
         }
     </style>
 </head>
+
 <body>
     <h1>Ejercicio 1: Infiltración en el Servidor</h1>
-    <h2>Ada Atienza Devós</h2>
+    <h2>Ada</h2>
 
     <button type="button" id="btn-instrucciones">Instrucciones</button>
 
@@ -25,18 +28,18 @@
     <form id="form-infiltracion">
         <input type="hidden" id="nom_alum" name="nom_alum" value="Ada">
         <input type="hidden" id="num_ejer" name="num_ejer" value="1">
-    
+
         <label for="nombre">Nombre</label><br>
         <input type="text" id="nombre" name="nombre" required><br>
-    
+
         <label for="apellidos">Apellidos</label><br>
         <input type="text" id="apellidos" name="apellidos" required><br>
-    
+
         <label for="password">Contraseña</label><br>
         <input type="password" id="password" name="password" value="1q2w3e" required>
-    
+
         <input type="hidden" id="llave" name="llave" value=""><br><br>
-    
+
         <button type="submit" id="btn-enviar">Enviar</button>
     </form>
 
@@ -44,24 +47,24 @@
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const apiUrl = "http://192.168.100.150/api/secret";
 
-            $('#btn-instrucciones').click(function() {
+            $('#btn-instrucciones').click(function () {
                 // Primero se vacía la lista para que no hayan duplicaciones
                 $('#instrucciones').empty();
 
                 $.ajax({
                     // A dónde va el paquete
-                    url: apiUrl, 
+                    url: apiUrl,
                     // Tipo de acción
-                    type: 'GET', 
+                    type: 'GET',
                     // Formato de respuesta
-                    dataType: 'json', 
+                    dataType: 'json',
                     // Si todo sale bien
-                    success: function(response) {
+                    success: function (response) {
                         // Recorre el array, por cada elemento crea un nuevo elemento en la lista y lo añade a ella
-                        $.each(response, function(index, instruccion) {
+                        $.each(response, function (index, instruccion) {
                             let nuevoElemento = $('<li>').text(instruccion);
                             $('#instrucciones').append(nuevoElemento);
                         });
@@ -69,9 +72,9 @@
                         $('#mensaje-exito').text("¡Instrucciones de la misión cargadas con éxito!");
                         // Mensaje para verificar el flujo de datos desde la consola
                         console.log("Fase 1 completada. Servidor respondió:", response);
-                    }, 
+                    },
                     // Si algo sale mal
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         // Imprime por consola toda la información sobre el error
                         console.error("Error en la fase 1 (GET): ", status, error);
                         console.log("Cuerpo de la respuesta de error: ", xhr.responseText);
@@ -80,7 +83,7 @@
             });
 
             // Envío del formulario
-            $('#form-infiltracion').submit(function(event) { 
+            $('#form-infiltracion').submit(function (event) {
                 // Detenemos la recarga automática de la página que hace el navegador por defecto
                 event.preventDefault();
 
@@ -92,15 +95,15 @@
 
                 $.ajax({
                     // A dónde va el paquete
-                    url: apiUrl, 
+                    url: apiUrl,
                     // Tipo de acción
                     type: 'POST',
                     // Qué se va a mandar
                     data: datosParaEnviar,
                     // Formato de respuesta
-                    dataType: 'json', 
+                    dataType: 'json',
                     // Si todo sale bien
-                    success: function(response) {
+                    success: function (response) {
                         // Si la respuesta es correcta se pone el mensaje de la respuesta en el título h2 verde
                         if (response.status === "success" || response.status === true) {
                             $('#mensaje-exito').text(response.message);
@@ -109,7 +112,7 @@
                         console.log("Respuesta del servidor al enviar el formulario", response);
                     },
                     // Si algo sale mal
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         // Imprime por consola toda la información sobre el error
                         console.error("Error en la fase 2 (POST): ", status, error);
                         console.log("Cuerpo de la respuesta de error: ", xhr.responseText);
@@ -119,4 +122,5 @@
         });
     </script>
 </body>
+
 </html>

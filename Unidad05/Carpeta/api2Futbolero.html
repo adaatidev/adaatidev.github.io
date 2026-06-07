@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 2: Futbolero Dinámico</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+
+        #escudo-equipo {
+            max-width: 150px;
+            display: block;
+            margin: 15px 0;
+        }
+
+        .info-bloque {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            max-width: 600px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 2: Futbolero</h1>
+
+    <label for="selector-equipos">Elige un equipo de la Premier League:</label><br>
+    <select id="selector-equipos">
+        <option value="">Cargando equipos...</option>
+    </select>
+
+    <div id="info-equipo" class="info-bloque">
+        <h3 id="nombre-equipo"></h3>
+        <p><strong>Año de fundación:</strong> <span id="ano-equipo"></span></p>
+        <img id="escudo-equipo" src="" alt="Escudo del equipo">
+        <p><strong>Descripción:</strong></p>
+        <p id="descripcion-equipo"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const urlListaEquipos = "https://www.thesportsdb.com/api/v1/json/123/search_all_teams.php?l=English_Premier_League";
+            const urlBuscarEquipo = "https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=";
+
+            $.ajax({
+                url: urlListaEquipos,
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                    let selector = $('#selector-equipos');
+                    selector.empty(); // Quita el texto "Cargando equipos..."
+                    selector.append('<option value="">Selecciona un equipo</option>');
+
+                    $.each(response.teams, function (index, equipo) {
+                        let opcion = $('<option>').val(equipo.strTeam).text(equipo.strTeam);
+                        selector.append(opcion);
+                    });
+                },
+                error: function () {
+                    $('#selector-equipos').html('<option value="">Error al cargar la liga</option>');
+                }
+            });
+
+            $('#selector-equipos').change(function () {
+                let equipoSeleccionado = $(this).val();
+
+                if (equipoSeleccionado !== "") {
+                    let urlFinal = urlBuscarEquipo + equipoSeleccionado;
+
+                    $.ajax({
+                        url: urlFinal,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (response) {
+                            // Coge los datos del equipo encontrado en la posición [0]
+                            let datosEquipo = response.teams[0];
+
+                            $('#nombre-equipo').text(datosEquipo.strTeam);
+                            $('#ano-equipo').text(datosEquipo.intFormedYear);
+                            $('#escudo-equipo').attr('src', datosEquipo.strBadge);
+
+                            // Si no hay descripción en español, usa la de inglés
+                            let descripcion = datosEquipo.strDescriptionES || datosEquipo.strDescriptionEN;
+                            $('#descripcion-equipo').text(descripcion);
+
+                            // Mostramos el recuadro con la información
+                            $('#info-equipo').show();
+                        },
+                        error: function () {
+                            alert("Error al conectar con la base de datos de deportes.");
+                        }
+                    });
+                } else {
+                    $('#info-equipo').hide();
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>

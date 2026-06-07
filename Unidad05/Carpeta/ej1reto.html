@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 1: RETO - Serialización</title>
+    <style>
+        body {
+            margin-left: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ejercicio 1: RETO</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Edad</th>
+                <th>Ciudad</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-datos">
+            <tr>
+                <td id="celda-nombre"></td>
+                <td id="celda-apellidos"></td>
+                <td id="celda-edad"></td>
+                <td id="celda-ciudad"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let personaOriginal = {
+                nombre: "Alberto",
+                apellidos: "Ramos",
+                edad: 26,
+                ciudad: "Granada"
+            };
+
+            let datosSerializados = JSON.stringify(personaOriginal);
+            console.log("Texto serializado (Listo para enviar):", datosSerializados);
+
+
+            let personaRecuperada = JSON.parse(datosSerializados);
+            console.log("Objeto deserializado (Listo para usar):", personaRecuperada);
+
+
+            $('#celda-nombre').text(personaRecuperada.nombre);
+            $('#celda-apellidos').text(personaRecuperada.apellidos);
+            $('#celda-edad').text(personaRecuperada.edad);
+            $('#celda-ciudad').text(personaRecuperada.ciudad);
+
+        });
+    </script>
+</body>
+
+</html>
