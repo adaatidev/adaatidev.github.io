@@ -3,60 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEGARETO</title>
+    <title>Ejercicio 2: MEGARETO</title>
+    <!-- Enlace para obtener el bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Insertar datos dinámicos con jQuery</h1>
+    <h1>Users data</h1>
     <form>
         <fieldset>
-            <legend>Rellenar datos</legend>
-            <input type="text" id="nombre" placeholder="Nombre">
-            <input type="text" id="apellidos" placeholder="Apellidos">
-            <input type="number" id="edad" placeholder="Edad">
-            <input type="text" id="ciudad" placeholder="Ciudad">
-            <button type="button" id="boton">Añadir</button>
+            <legend>Input data</legend>
+            <input type="text" id="nameInput" placeholder="Name" required>
+            <input type="text" id="lastInput" placeholder="Last name" required>
+            <input type="number" id="ageInput" placeholder="Age" required>
+            <input type="text" id="cityInput" placeholder="City" required>
+            <button type="button" id="addButton">Add</button>
         </fieldset>
     </form>
-    <table>
+    <table border="1">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Apellidos</th>
-                <th>Edad</th>
-                <th>Ciduad</th>
+                <th>Name</th>
+                <th>Last name</th>
+                <th>Age</th>
+                <th>City</th>
             </tr>
         </thead>
-        <tbody id="tabla"></tbody>
+        <tbody id="table"></tbody>
     </table>
     <br>
-    <div id="resumen">
+    <div id="ageData">
         <p>Suma: <span id="suma"></span></p>
         <p>Media: <span id="media"></span></p>
-        <p>Máximo: <span id="max"></span></p>
-        <p>Mínimo: <span id="min"></span></p>
+        <p>Máx: <span id="max"></span></p>
+        <p>Mín: <span id="min"></span></p>
     </div>
-
-    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         $(document).ready(function() {
+            const button = $("#addButton");
+            let objArray = [];
 
-            // Array para almacenar las edades
-            let listaEdades = [];
+            button.on('click', function() {
+                let data = {
+                    name: $("#nameInput").val().trim(),
+                    lastName: $("#lastInput").val().trim(),
+                    age: $("#ageInput").val().trim(),
+                    city: $("#cityInput").val().trim()
+                };
 
-            $("#button").click(function() {
+                if (data.name && data.lastName && data.age && data.city) {
+                    let table = $("#table");
+                    insertFila(table, data);
+                    //calculate(data.age);
+                    cleanData();
+                } else {
+                    alert("Todos los campos deben estar rellenos");
+                }
+
+                objArray += data;
 
             });
-        });
 
-        // Función para insertar los datos en las celdas de la tabla
-        function insertaCeldas(fila, datos) {
-            fila.insertCell()
-        };
+            function cleanData() {
+            $("#nameInput, #lastInput, #ageInput, #cityInput").val("");
+            }
 
-        // Función para limpiar los campos
-        function limpiarCampos() {
-            $("#nombre, #apellidos, #edad, #ciudad").val("");
+            function insertCelda(row, data) {
+            row.insertCell().textContent = data.name;
+            row.insertCell().textContent = data.lastName;
+            row.insertCell().textContent = data.age;
+            row.insertCell().textContent = data.city;
+            }
+
+            function insertFila(table, data) {
+            let row = table.insertRow();
+            row.on('click', function () {
+                let ifDelete = confirm(`You wish to delete ${data.name} ${data.lastName}?`);
+                if (ifDelete) {
+                    this.remove();
+                }
+            });
+            insertCelda(row, data);
         }
+        });
     </script>
 </body>
 </html>

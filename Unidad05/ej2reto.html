@@ -44,6 +44,8 @@
             contador: 0,
         }
 
+        let arrayObjetos = [];
+
         document.getElementById("add").addEventListener("click", function() {
             let datos = {
                 nombre: document.getElementById("nombre").value, 
@@ -60,6 +62,9 @@
             } else {
                 alert("Todos los campos deben estar rellenos");
             }
+
+            arrayObjetos.push(datos);
+
         });
 
         function insertaFila(tabla, datos) {

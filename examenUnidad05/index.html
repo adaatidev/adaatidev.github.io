@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Chat</title>
+    <style>
+        body {
+            margin-left: 30px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }
+
+        .mensaje-exito {
+            color: green;
+            font-weight: bold;
+        }
+
+        .mensaje-error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>El Chat</h1>
+    <h2>Ada</h2>
+
+    <!-- Mensaje del servidor -->
+    <h3 id="mensaje-servidor"></h3>
+
+    <!-- Formulario con todos sus campos y botones obligatorios -->
+    <form id="form-sesion">
+        <label for="nombre">Nombre de usuario</label><br>
+        <input type="text" id="nombre" name="nombre" required><br>
+
+        <label for="password">Contraseña</label><br>
+        <input type="password" id="password" name="password" required><br>
+
+        <button type="button" id="btn-entrar">Entrar</button><br><br>
+    </form>
+
+    <form id="form-mensaje">
+        <label for="mensaje">Mensaje</label><br>
+        <input type="text" id="mensaje" name="mensaje"><br>
+
+        <input type="hidden" id="idUser" name="idUser">
+
+        <button type="button" id="btn-enviar">Enviar</button>
+    </form>
+
+    <!-- Contenedor para mostrar el historial de mensajes -->
+    <div id="historial-mensajes">
+        <div class="conversacion-actual"></div>
+        <div id="conversacion"></div>
+    </div>
+
+    <script src="jquery-3.7.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Variables auxiliares para acceder a las API
+            const urlLogin = "http://192.168.100.150/api/chat/login";
+            const urlMensaje = "http://192.168.100.150/api/chat/mensaje";
+
+            // Mensaje y botón enviar deshabilitado por defecto
+            $('#mensaje').prop('disabled', true);
+            $('#btn-enviar').prop('disabled', true);
+
+            // Cuando se pulsa el botón de entrar
+            $('#btn-entrar').click(function () {
+
+                // Primero se serializan los datos que se van a enviar
+                let datosFormulario = $('#form-sesion').serialize();
+
+                // Seguimiento por consola
+                console.log("Datos serializados a enviar: " + datosFormulario);
+
+                // Petición POST mediante AJAX
+                $.ajax({
+                    url: urlLogin,
+                    type: 'POST',
+                    data: datosFormulario,
+                    dataType: 'json',
+                    success: function (response) {
+                        // Si la petición es exitosa el campo nombre, contraseña y el botón entrar se deshabilitan
+                        $('#nombre').prop('disabled', true);
+                        $('#password').prop('disabled', true);
+                        $('#btn-entrar').prop('disabled', true);
+
+                        // El campo mensaje y el botón enviar se habilitan
+                        $('#mensaje').prop('disabled', false);
+                        $('#btn-enviar').prop('disabled', false);
+
+                        // Muestra un mensaje de éxito del servidor por pantalla
+                        $('#mensaje-servidor').text("Inicio de sesión exitoso").addClass('mensaje-exito');
+
+                        // Seguimiento por consola
+                        console.log("Inicio de sesión exitoso ", response);
+
+                        // Si el usuario existe y la contraseña es correcta devuelve su idUser
+                        if (response.idUser != null && response.success === true) {
+                            console.log("ID del usuario: ", response.idUser);
+                            // Se guarda el idUser recibido en el campo oculto
+                            $('#idUser').val(response.idUser);
+                        } else {
+                            // Si el usuario no existe se crea
+                            $('#idUser').val(999);
+                        }
+                    },
+                    // Si algo sale mal imprime por pantalla un mensaje de error + el seguimiento por consola
+                    error: function (xhr, status, error) {
+                        $('#mensaje-servidor').text("Error en el inicio de sesión").addClass('mensaje-error');
+                        console.error("Error en el inicio de sesión ", status, error);
+                        console.log("Cuerpo del mensaje de error ", xhr.responseText);
+                    }
+                });
+
+                // Cuando se pulse el botón enviar
+                $('#btn-enviar').click(function () {
+
+                    // Primero se serializa la información que se va a enviar
+                    let datosMensaje = $('#form-mensaje').serialize();
+
+                    // Se actualiza el mensaje del servidor
+                    $('#mensaje-servidor').text("").removeClass();
+
+                    // Petición POST al servidor mediante AJAX
+                    $.ajax({
+                        url: urlMensaje,
+                        type: 'POST',
+                        data: datosMensaje,
+                        dataType: 'json',
+                        success: function (responseEnvio) {
+                            // Si el array es mayor que 0 es que hay conversaciones
+                            if (responseEnvio.conversacion.length > 0) {
+                                $('.conversacion-actual').append($('<h3>').text("Historial de mensajes"));
+
+                                // Bucle for que imprime los mensajes
+                                for (let i = 0; i < responseEnvio.conversacion.length; i++) {
+                                    // Si el id del usuario coincide con el mío se pasa al texto de la derecha, sino al de la izquierda
+                                    console.log(responseEnvio.conversacion[i].idUser);
+                                    if (responseEnvio.conversacion[i].idUser == parseInt($('#idUser').val())) {
+                                        $('#conversacion').append($('<p style="text-align: right">').text(responseEnvio.conversacion[i].fecha_hora + " - " + responseEnvio.conversacion[i].nombre + ": " + responseEnvio.conversacion[i].mensaje));
+                                    } else {
+                                        console.log(111);
+                                        $('#conversacion').append($('<p>').text(responseEnvio.conversacion[i].fecha_hora + " - " + responseEnvio.conversacion[i].nombre + ": " + responseEnvio.conversacion[i].mensaje));
+                                    }
+                                };
+
+                                // Seguimiento por consola
+                                console.log("Mostrando conversación");
+                            } else {
+                                // Muestra un mensaje por pantalla de que tiene el historial vacío
+                                $('#titulo-historial').text("No existen conversaciones anteriores");
+                                // Seguimiento por consola
+                                console.log("No existen conversaciones anteriores");
+                            }
+                            // El campo mensaje se vacía tras cada envío exitoso
+                            $('#mensaje').empty();
+
+                            // Muestra un mensaje de éxito del servidor por pantalla
+                            $('#mensaje-servidor').text("Envío de mensaje exitoso").addClass('mensaje-exito');
+
+                            // Seguimiento por consola
+                            console.log("Envío de mensaje exitoso", responseEnvio);
+
+                        },
+                        // Si algo sale mal imprime por pantalla un mensaje de error + el seguimiento por consola
+                        error: function (xhr, status, error) {
+                            $('#mensaje-servidor').text("Error en el envío de mensaje").addClass('mensaje-error');
+                            console.error("Error en el inicio de sesión ", status, error);
+                            console.log("Cuerpo del mensaje de error ", xhr.responseText);
+                        }
+                    });
+                });
+
+            });
+
+        });
+    </script>
+</body>
+
+</html>
