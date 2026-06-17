@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dados de la Suerte</title>
+    <style>
+        .error { color: red; font-weight: bold; }
+        #seccion-juego { display: none; } /* Oculto hasta el login exitoso */
+    </style>
+</head>
+<body>
+    <h1>Dados de la Suerte</h1>
+    <h2>Ada</h2>
+
+    <div id="mensajes"></div>
+
+    <div id="seccion-login">
+        <form id="form-login">
+            <input type="text" id="nombre" placeholder="Nombre" required>
+            <input type="text" id="apellidos" placeholder="Apellidos" required>
+            <button type="button" id="btn-entrar">Entrar</button>
+        </form>
+    </div>
+
+    <div id="seccion-juego">
+        <p>Créditos disponibles: <span id="creditos">0</span></p>
+        <form id="form-juego">
+            <input type="number" id="apuesta" placeholder="Tu número (2-12)" min="2" max="12" required>
+            <input type="number" id="cantidad" placeholder="Cantidad a apostar" required>
+            <button type="submit">Jugar</button>
+        </form>
+        <table border="1" id="tabla-resultado">
+            <thead>
+                <tr><th>Apuesta</th><th>Dado 1</th><th>Dado 2</th><th>Resultado</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // --- 1. LOGIN (ENTRAR): Recogida de datos iniciales ---
+        $('#btn-entrar').click(function () {
+            let datos = {
+                nombre: $('#nombre').val(),
+                apellidos: $('#apellidos').val()
+            };
+
+            $.ajax({
+                url: 'http://192.168.100.150/api/dados/entrar',
+                type: 'POST', // El ejercicio pide POST para entrar también
+                data: datos,
+                success: function (res) {
+                    if (res.success) {
+                        // Si va bien, actualizamos créditos y cambiamos la pantalla
+                        $('#creditos').text(res.creditos);
+                        $('#seccion-login').hide();
+                        $('#seccion-juego').show();
+                    } else {
+                        $('#mensajes').text("Error: " + res.mensaje).addClass('error');
+                    }
+                },
+                error: function () {
+                    $('#mensajes').text("Error de conexión").addClass('error');
+                }
+            });
+        });
+
+        // --- 2. JUGAR: Envío de la apuesta ---
+        $('#form-juego').submit(function (e) {
+            e.preventDefault(); // Evita que la página se recargue al enviar
+
+            let apuestaDatos = {
+                apuesta: $('#apuesta').val(),
+                cantidad: $('#cantidad').val()
+            };
+
+            $.ajax({
+                url: 'http://192.168.100.150/api/dados/jugar',
+                type: 'POST',
+                data: apuestaDatos,
+                success: function (res) {
+                    // Actualizamos créditos que devuelve el servidor
+                    $('#creditos').text(res.creditos);
+
+                    // Construimos el texto del resultado
+                    let suma = res.dado1 + res.dado2;
+                    let textoResultado = res.dado1 + " + " + res.dado2 + " = " + suma + " (" + res.mensaje + ")";
+
+                    // Insertamos la fila en la tabla
+                    $('#tabla-resultado tbody').append(
+                        '<tr><td>' + res.apuesta + '</td><td>' + res.dado1 + '</td><td>' + res.dado2 + '</td><td>' + textoResultado + '</td></tr>'
+                    );
+                },
+                error: function () {
+                    $('#mensajes').text("Error al realizar la apuesta").addClass('error');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

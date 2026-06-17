@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Grupal API</title>
+    <style>
+        /* CSS para la alineación de mensajes */
+        .msg-container { display: flex; flex-direction: column; width: 300px; }
+        .msg-mio { align-self: flex-end; color: blue; } /* Derecha */
+        .msg-otro { align-self: flex-start; color: black; } /* Izquierda */
+        #errores { font-weight: bold; margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Chat Grupal con API</h1>
+    <h2>Ada</h2>
+
+    <div id="errores"></div>
+
+    <form id="form-chat">
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <input type="text" id="mensaje" placeholder="Mensaje" disabled required>
+        
+        <input type="hidden" id="idUser">
+        
+        <button type="button" id="btn-entrar">Entrar</button>
+        <button type="submit" id="btn-enviar" disabled>Enviar</button>
+    </form>
+
+    <div id="conversacion"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // --- LOGIN: Usamos el objeto con 'success' y 'error' ---
+        $('#btn-entrar').click(function () {
+            let datos = {
+                nombre: $('#nombre').val(),
+                password: $('#password').val()
+            };
+
+            $.ajax({
+                url: 'http://192.168.100.150/api/chat/login',
+                type: 'POST',
+                data: datos,
+                success: function (res) {
+                    // Si el servidor responde correctamente
+                    if (res.success) {
+                        $('#idUser').val(res.idUser); // Guardamos el ID en el campo oculto
+                        
+                        // Deshabilitamos login y habilitamos chat
+                        $('#nombre, #password, #btn-entrar').prop('disabled', true);
+                        $('#mensaje, #btn-enviar').prop('disabled', false);
+                        
+                        // Pintamos la conversación inicial
+                        renderizarChat(res.mensajes);
+                    } else {
+                        $('#errores').text("Error: " + res.mensaje).css('color', 'red');
+                    }
+                },
+                error: function () {
+                    $('#errores').text("Error de conexión").css('color', 'red');
+                }
+            });
+        });
+
+        // --- ENVIAR MENSAJE: Igual estructura ---
+        $('#form-chat').submit(function (e) {
+            e.preventDefault();
+            
+            let datosEnvio = {
+                idUser: $('#idUser').val(),
+                texto: $('#mensaje').val()
+            };
+
+            $.ajax({
+                url: 'http://192.168.100.150/api/chat/mensaje',
+                type: 'POST',
+                data: datosEnvio,
+                success: function (res) {
+                    $('#mensaje').val(''); // Limpiamos el input
+                    renderizarChat(res.mensajes); // Repintamos todo
+                },
+                error: function () {
+                    alert("Error al enviar");
+                }
+            });
+        });
+
+        // Función sencilla para pintar
+        function renderizarChat(mensajes) {
+            $('#conversacion').empty();
+            let miId = $('#idUser').val();
+            
+            $.each(mensajes, function (i, m) {
+                // Si miId coincide, clase "mio" (derecha), si no, "otro" (izquierda)
+                let clase = (m.idUser == miId) ? "mio" : "otro";
+                $('#conversacion').append('<div class="'+clase+'">' + m.hora + ' - ' + m.nombre + ': ' + m.texto + '</div>');
+            });
+        }
+    });
+</script>
+</body>
+</html>
