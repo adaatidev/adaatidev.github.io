@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="moviles.css">
+    <title>TechMarket</title>
+</head>
+
+<body>
+    <h1>El Catálogo de Dispositivos Móviles</h1>
+    <h2>Ada</h2>
+
+    <div id="contenedor-avisos">
+        <p id="aviso" style="color: red"></p>
+    </div>
+
+    <form id="form-buscar">
+        <label for="buscar_marca">Buscar marca</label><br>
+        <input type="text" id="buscar_marca" name="buscar_marca" required><br><br>
+
+        <label for="so">Filtro de Sistema Operativo</label><br><br>
+        <select id="so" name="so" hidden></select>
+
+        <button type="button" id="btn-todos">Todos</button><br>
+    </form>
+
+    <div id="catalogo"></div>
+
+    <aside id="panel-especificaciones"></aside>
+
+    <script src="jquery-3.7.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Variables auxiliares que almacenan las URL de las API
+            const urlBuscar = "http://192.168.100.150/api/moviles/buscar";
+            const urlDetalles = "http://192.168.100.150/api/moviles/detalles";
+
+            // Mientras se escribe en el input buscar_marca se realiza una petición POST a la API mediante AJAX
+            $('#buscar_marca').keyup(function () {
+                // Se serializan los datos que se van a enviar a la API
+                let datosBuscar = $('#buscar_marca').serialize();
+
+                $.ajax({
+                    url: urlBuscar,
+                    type: 'POST',
+                    data: datosBuscar,
+                    dataType: 'json',
+                    // Si la petición sale bien el selector se muestra
+                    success: function (response) {
+                        $('#so').show();
+
+                        // Primero se vacía el contenedor y el selector para evitar duplicados
+                        $('#catalogo').empty();
+                        $('#so').empty();
+
+                        // Por cada elemento del array de so se añade al selector
+                        for (let i = 0; i < response.so.length; i++) {
+                            let nuevoElemento = $('<option>').text(response.so[i]);
+                            $('#so').append(nuevoElemento);
+                        }
+
+                        // Se guarda la marca que busca el usuario en una variable auxiliar
+                        let marcaBuscada = $('#buscar_marca').val();
+
+                        // Recorre la lista de marcas
+                        for (let j = 0; j < response.lista.length; j++) {
+                            // Si la marca coincide con la del usuario se añade el contenido al catalogo
+//                            if (marcaBuscada == response.lista[j].marca) {
+                                let nuevoElementoCatalogo = $('<p>').text("Marca: " + response.lista[j].marca + " Modelo: " + response.lista[j].modelo + " Sistema Operativo: " + response.lista[j].sistema_operativo + " Precio: " + response.lista[j].precio + "€");
+                                $('#catalogo').append(nuevoElementoCatalogo);
+                                let nuevoBotonEspecificaciones = $('<button type="button" id="btn-especificaciones">').text("Especificaciones");
+                                $('#catalogo').append(nuevoBotonEspecificaciones);
+
+                                // Si se pulsa el botón de especificaciones de un móvil
+                                $('#btn-especificaciones').click(function () {
+                                    // Se almacena el id del móvil en una variable
+                                    let idDispositivo = response.lista[j].id;
+
+                                    let datos={id: idDispositivo};
+                                    // Se serializan los datos a enviar a la API
+                                    let datosDispositivo = JSON.stringify(datos);
+
+
+                                    // Petición POST a la API mediante AJAX para que devuelva las especificaciones del móvil seleccionado
+                                    $.ajax({
+                                        url: urlDetalles,
+                                        type: 'POST',
+                                        data: datosDispositivo, 
+                                        dataType : "application/json",
+                                        // Si la petición sale bien se añaden las especificaciones
+                                        success: function (responseEsp) {
+
+                                            let nuevaInfo = $('<p>').text("Memoria RAM: " + responseEsp.ram + "Almacenamiento: " + responseEsp.almacenamiento + "Capacidad de batería: " + responseEsp.bateria);
+                                            $('#panel-especificaciones').append(nuevaInfo);
+
+                                            console.log("Acceso a las especificaciones exitoso ", responseEsp);
+                                        },
+                                        error: function (xhr, status, error) {
+                                            $('#aviso').text("Error en el botón de especificaciones");
+                                            console.error("Error en el botón de especificaciones ", status, error);
+                                            console.log("Cuerpo del mensaje de error ", xhr.responseText);
+                                        }
+                                    });
+                                });
+                            //};
+                        };
+                        console.log("Acceso a la API exitoso ", response);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#aviso').text("Error en el acceso a la API");
+                        console.error("Error en el acceso a la API ", status, error);
+                        console.log("Cuerpo del mensaje de error ", xhr.responseText);
+                    }
+                });
+            });
+
+            // Botón "Todos" para limpiar el valor del select cuando se haya seleccionado un so y también limpia el catálogo para no acumular los resultados anteriores
+            $('#btn-todos').click(function () {
+                $('#so').empty();
+                $('#catalogo').empty();
+            });
+
+            // Al cambiar el valor del select el contenedor catalogo se limpia por completo para no acumular los resultados anteriores
+            $('#so').change(function () {
+                $('#catalogo').empty();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+/* Estilos para el Módulo de Móviles */
+body { font-family: sans-serif; padding: 20px; }
+
+/* Contenedores principales */
+#catalogo { 
+    margin-top: 20px; 
+    border: 1px solid #ccc; 
+    min-height: 100px; 
+}
+
+#panel-especificaciones { 
+    padding: 15px; 
+    background: #f4f4f4; 
+    border-left: 5px solid #333; 
+}
+
+/* Manejo de errores */
+.mensaje-error { 
+    color: red; 
+    font-weight: bold; 
+    padding: 10px; 
+    border: 1px solid red; 
+}
+
+/* Fila de móvil */
+.movil-item { 
+    display: flex; 
+    gap: 15px; 
+    padding: 10px; 
+    border-bottom: 1px solid #eee; 
+}
